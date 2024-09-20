@@ -35,13 +35,13 @@ function ReceptionistController() {
       // Kiểm tra xem MaKhoa có tồn tại trong bảng Khoa hay không
       const khoa = await Khoa.findById(MaKhoa);
       if (!khoa) {
-        return res.status(404).json({ message: "Khoa không tồn tại" });
+        return errorResponse(req, res, "Khoa không tồn tại", 404);
       }
 
       // Kiểm tra xem MaBN có tồn tại trong bảng NhanVien hay không
       const benhNhan = await BenhNhan.findById(MaBN);
       if (!benhNhan) {
-        return res.status(404).json({ message: "Bệnh nhân không tồn tại" });
+        return errorResponse(req, res, "Bệnh nhân không tồn tại", 404);
       }
 
       // Kiểm tra sự tồn tại của BacSi nếu có
@@ -49,15 +49,13 @@ function ReceptionistController() {
       if (MaBS && MaBS.trim() !== "") {
         const bacSi = await NhanVien.findById(MaBS).populate("MaCV"); // Populate để lấy thông tin về chức vụ;
         if (!bacSi) {
-          return res.status(404).json({ message: "Bác sĩ này không tồn tại" });
+          return errorResponse(req, res, "Bác sĩ này không tồn tại", 404);
         }
         // Kiểm tra nếu chức vụ của nhân viên là "Bác sĩ"
         if (bacSi.MaCV && bacSi.MaCV.TenCV === "Bác Sĩ") {
           hasBS = true;
         } else {
-          return res
-            .status(400)
-            .json({ message: "Nhân viên không phải là bác sĩ" });
+          return errorResponse(req, res, "Nhân viên không phải là bác sĩ", 400);
         }
       }
 
@@ -71,9 +69,7 @@ function ReceptionistController() {
         NgayDatKham: date, // Đảm bảo NgayDatKham là đối tượng Date
       });
 
-      // Lưu đối tượng vào cơ sở dữ liệu
       await lichDatKhamMoi.save();
-      // Trả về phản hồi thành công
       return successResponse(
         req,
         res,
@@ -84,7 +80,6 @@ function ReceptionistController() {
         201
       );
     } catch (error) {
-      // Xử lý lỗi và trả về phản hồi lỗi
       return errorResponse(req, res, "Lỗi server khi tạo lịch khám.");
     }
   };
@@ -98,13 +93,11 @@ function ReceptionistController() {
       // Kiểm tra xem MaBN có tồn tại trong bảng NhanVien hay không
       const appointment = await LichDatKham.findById(appointmentID);
       if (!appointment) {
-        return res.status(404).json({ message: "Lịch khám này không tồn tại" });
+        return errorResponse(req, res, "Lịch khám này không tồn tại", 404);
       }
 
       appointment.TrangThai = true;
-      // Cập nhật tượng vào cơ sở dữ liệu
       await appointment.save();
-      // Trả về phản hồi thành công
       return successResponse(
         req,
         res,
@@ -115,7 +108,6 @@ function ReceptionistController() {
         200
       );
     } catch (error) {
-      // Xử lý lỗi và trả về phản hồi lỗi
       return errorResponse(req, res, "Lỗi server khi xác nhận lịch khám.");
     }
   };
@@ -129,7 +121,7 @@ function ReceptionistController() {
       // Kiểm tra xem MaBN có tồn tại trong bảng NhanVien hay không
       const appointment = await LichDatKham.findById(appointmentID);
       if (!appointment) {
-        return res.status(404).json({ message: "LỊch khám này không tồn tại" });
+        return errorResponse(req, res, "Lịch khám này không tồn tại", 404);
       }
 
       appointment.TrangThai = false;
@@ -160,13 +152,13 @@ function ReceptionistController() {
 
       const { action } = req.body; // Lấy hành động từ body (action: "approve" hoặc "cancel")
       if (!["approve", "cancel"].includes(action)) {
-        return res.status(400).json({ message: "Hành động không hợp lệ" });
+        return errorResponse(req, res, "Hành động không hợp lệ", 400);
       }
 
       // Kiểm tra xem MaBN có tồn tại trong bảng LichDatKham hay không
       const appointment = await LichDatKham.findById(appointmentID);
       if (!appointment) {
-        return res.status(404).json({ message: "LỊch khám này không tồn tại" });
+        return errorResponse(req, res, "Lịch khám này không tồn tại", 404);
       }
       let returnMsg = "";
       // Xử lý dựa trên hành động
@@ -179,9 +171,7 @@ function ReceptionistController() {
         appointment.TrangThai = false;
         returnMsg = "hủy";
       }
-      // Cập nhật tượng vào cơ sở dữ liệu
       await appointment.save();
-      // Trả về phản hồi thành công
       return successResponse(
         req,
         res,
@@ -192,7 +182,6 @@ function ReceptionistController() {
         200
       );
     } catch (error) {
-      // Xử lý lỗi và trả về phản hồi lỗi
       return errorResponse(req, res, "Lỗi server khi xác nhận lịch khám.");
     }
   };

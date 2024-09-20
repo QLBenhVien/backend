@@ -15,6 +15,11 @@ app.use(cors());
 
 app.use("/", route);
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./docs/swagger.json');
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 const port = process.env.PORT || 3000; // Cổng mặc định hoặc từ biến môi trường
 
 // Kết nối đến MongoDB

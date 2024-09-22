@@ -11,40 +11,36 @@ function AuthController() {
       .then(async (user) => {
         if (!user) {
           return errorResponse(req, res, "Không tìm thấy người dùng.");
-
-          // return res.status(400).json({ message: "User already exits." });
         }
-
-
-       if (!user.active) { // Kiểm tra tài khoản có bị vô hiệu hóa không
-        return errorResponse(req, res, "Tài khoản đã bị vô hiệu hóa.", 403);
-      }
+        if (!user.active) {
+          // Kiểm tra tài khoản có bị vô hiệu hóa không
+          return errorResponse(req, res, "Tài khoản đã bị vô hiệu hóa.", 403);
+        }
 
         var passwordIsValid = bcrypt.compareSync(password, user.password);
 
         if (!passwordIsValid) {
           return errorResponse(req, res, "Mật khẩu không hợp lệ!", 401);
-          // res.status(401).send({
-          //   accessToken: null,
-          //   message: "Invalid Password!",
-          // });
         }
-        var token = jwt.sign(
-          {
-            user: {
-              userId: user.id,
-              email: user.email,
-              createdAt: new Date(),
-            },
+
+        // Tạo payload cho token tùy thuộc vào vai trò của người dùng
+        const payload = {
+          user: {
+            userId: user.id,
+            email: user.email,
+            role: user.role,
+            createdAt: new Date(),
           },
-          process.env.JWT_KEY,
-          {
-            expiresIn: 3600, // 24 hours
-          }
-        );
+        };
+
+        // Thay đổi key hoặc cấu hình tùy thuộc vào vai trò (nếu cần thiết)
+        const token = jwt.sign(payload, process.env.JWT_KEY, {
+          expiresIn: 3600, // 1 giờ
+        });
         return successResponse(req, res, {
           id: user.id,
           email: user.email,
+          role: user.role, // Thêm vai trò vào phản hồi
           accessToken: token,
         });
       })
@@ -84,7 +80,6 @@ function AuthController() {
     }
   };
 
- 
   return this;
 }
 

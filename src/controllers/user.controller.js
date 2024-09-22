@@ -4,7 +4,7 @@ const { message } = require("antd");
 const BenhNhan = require("../models/BenhNhan");
 const { successResponse, errorResponse } = require("../helpers/index");
 const Khoa = require("../models/Khoa");
-const LickKham = require("../models/LichKham");
+const LickKham = require("../models/LichDatKham");
 const NhanVien = require("../models/NhanVien");
 const ThongBao = require("../models/ThongBao");
 module.exports.hello = async (req, res) => {
@@ -123,7 +123,7 @@ module.exports.home = async (req, res, next) => {};
 //Xem thông tin người dùng 
 module.exports.getMyAccountInfo = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.authenticatedUser.userId;
     console.log("userId:", userId);
     const benhNhan = await BenhNhan.findOne({ accountId: userId });
 
@@ -142,7 +142,7 @@ module.exports.getMyAccountInfo = async (req, res) => {
 //Cập nhật thông tin người dùng 
 module.exports.updateMyAccountInfo = async (req, res) => {
   try {
-    const userId =  req.user.userId;
+    const userId =  req.authenticatedUser.userId;
     const updateData = req.body;
     const updatedBenhNhan = await BenhNhan.findOneAndUpdate(
       { accountId: userId },
@@ -199,7 +199,7 @@ module.exports.Datkham = async (req, res, next) => {
     const LickKhamnew = new LickKham({
       NhanVienID: MaNV._id,
       BenhNhanID: MaBN,
-      KhoaID: MaKhoa._id,
+      // KhoaID: MaKhoa._id,
       NgayDat: NgayDat,
     });
 

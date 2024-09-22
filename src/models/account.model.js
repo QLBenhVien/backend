@@ -4,7 +4,11 @@ const accountSchema = new mongoose.Schema({
   email: { type: String },
   password: { type: String },
   active: { type: Boolean, default: true },
-  role: { type: String, default: "KH" },
+  role: {
+    type: String,
+    enum: ["KH", "BS", "LT", "IT"], // Danh sách các vai trò hợp lệ
+    default: "KH",
+  },
 });
 
 const TaiKhoan = mongoose.model("TaiKhoan", accountSchema);

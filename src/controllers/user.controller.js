@@ -266,49 +266,57 @@ module.exports.laylaimk = async (req, res, next) => {
   module.exports.createPatientProfile = async (req, res) => {
     try {
       const { Ten, NgaySinh, DiaChi, GioiTinh, SDT, CCCD, Email } = req.body;
-
+  
       // Kiểm tra dữ liệu đầu vào
       if (!Ten || !Email) {
         return res.status(400).json({ message: "Tên và email là bắt buộc." });
       }
-       // Kiểm tra số điện thoại (Phải 10 số)
-       if (!SDT || SDT.length !== 10 || !/^\d+$/.test(SDT)) {
+      if (SDT && (SDT.length !== 10 || !/^\d+$/.test(SDT))) {
         return res.status(400).json({ message: "Số điện thoại phải có 10 số và chỉ chứa các chữ số." });
-    }
-
-    // Kiểm tra CCCD (Phải 9 số)
-    if (!CCCD || CCCD.length !== 9 || !/^\d+$/.test(CCCD)) {
+      }
+      if (CCCD && (CCCD.length !== 12 || !/^\d+$/.test(CCCD))) {
         return res.status(400).json({ message: "CCCD phải có 9 số và chỉ chứa các chữ số." });
-    }
-  // Kiểm tra số điện thoại và CCCD có bị trùng không
-  const existingPatient = await BenhNhan.findOne({ $or: [{ SDT }, { CCCD }] });
-  if (existingPatient) {
-      return res.status(400).json({ message: "Số điện thoại hoặc CCCD đã tồn tại." });
-  }
-      // Tạo một hồ sơ bệnh nhân mới
+      }
+  
+      // Tìm tài khoản bằng email
+      const account = await TaiKhoan.findOne({ email: Email });
+      if (!account) {
+        return res.status(404).json({ message: "Tài khoản không tồn tại." });
+      }
+  
+      // Kiểm tra bệnh nhân đã tồn tại
+      const existingPatient = await BenhNhan.findOne({ $or: [{ SDT }, { CCCD }] });
+      if (existingPatient) {
+        return res.status(409).json({ message: "Số điện thoại hoặc CCCD đã tồn tại." });
+      }
+  
+      // Tạo hồ sơ bệnh nhân mới
       const newPatient = new BenhNhan({
         Ten,
-        NgaySinh,
-        DiaChi,
-        GioiTinh,
-        SDT,
-        CCCD,
-        Email,
+        NgaySinh: NgaySinh || null, // Đặt giá trị mặc định nếu không có
+        DiaChi: DiaChi || null,
+        GioiTinh: GioiTinh || null,
+        SDT: SDT || null,
+        CCCD: CCCD || null,
+        Email, // Lưu Email từ req.body
+        accountId: account._id // Lưu accountId từ TaiKhoan
       });
   
-      // Lưu hồ sơ bệnh nhân vào cơ sở dữ liệu
+      // Lưu hồ sơ bệnh nhân mới
       const savedPatient = await newPatient.save();
   
-      // Phản hồi với hồ sơ bệnh nhân đã tạo
-      res.status(200).json({
+      // Phản hồi
+      res.status(201).json({
         message: "Hồ sơ bệnh nhân đã được tạo thành công",
-        patient: savedPatient,
+        patient: savedPatient, // Gửi hồ sơ bệnh nhân đã lưu
       });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
     }
   };
+  
+  
 
   //Tìm hồ sơ bệnh nhân (tìm theo cccd,email hoặc số điện thoại)
   module.exports.findPatientProfile = async (req, res) => {

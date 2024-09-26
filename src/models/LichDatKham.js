@@ -8,6 +8,7 @@ const lichkhamSchema = new mongoose.Schema({
   TrieuChung: { type: String },
   TrangThai: { type: Boolean, default: false},  // Default to false and allow null
   NgayDatKham: { type: Date, default: Date.now },  // Default to current date
+  SoThuTuKham: { type: Number },  // Số thứ tự khám
 });
 
 const LichDatKham = mongoose.model("LichDatKham", lichkhamSchema);

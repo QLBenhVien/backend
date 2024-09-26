@@ -8,7 +8,6 @@ const LichDatKham = require("../models/LichDatKham");
 const NhanVien = require("../models/NhanVien");
 const BenhNhan = require("../models/BenhNhan");
 const ChucVu = require("../models/ChucVu");
-const mongoose = require("mongoose");
 
 function ReceptionistController() {
   this.scheduleappointment = async (req, res, next) => {
@@ -59,6 +58,23 @@ function ReceptionistController() {
         }
       }
 
+      // Chuyển đổi NgayDatKham thành một giá trị đại diện cho ngày (YYYY-MM-DD) để so sánh
+      const dateStart = new Date(date);
+      dateStart.setHours(0, 0, 0, 0); // Đặt thời gian bắt đầu của ngày về 00:00:00.000
+
+      const dateEnd = new Date(date);
+      dateEnd.setHours(23, 59, 59, 999); // Đặt thời gian kết thúc của ngày về 23:59:59.999
+
+      // Tìm số thứ tự khám (SoThuTuKham) lớn nhất trong ngày dựa trên NgayDatKham
+      const lastLichKham = await LichDatKham
+        .findOne({
+          NgayDatKham: { $gte: dateStart, $lte: dateEnd },
+        })
+        .sort({ SoThuTuKham: -1 }); // Sắp xếp giảm dần theo SoThuTuKham để lấy giá trị lớn nhất
+
+      // Nếu đã có lịch khám trong ngày, tăng SoThuTuKham lên 1, ngược lại bắt đầu từ 1
+      let sttKham = lastLichKham ? lastLichKham.SoThuTuKham + 1 : 1;
+
       // Tạo đối tượng LichDatKham
       const lichDatKhamMoi = new LichDatKham({
         BacSiID: hasBS ? MaBS : null,
@@ -67,6 +83,7 @@ function ReceptionistController() {
         NhanVienTaoLich: receptionisterId,
         TrieuChung: TrieuChung,
         NgayDatKham: date, // Đảm bảo NgayDatKham là đối tượng Date
+        SoThuTuKham: sttKham
       });
 
       await lichDatKhamMoi.save();

@@ -25,7 +25,7 @@ const verifyToken = (req, res, next) => {
       return catchError(err, res);
     }
     //Từ token mình biết được nó là của người dùng nào và gắn ở đây để gửi sang controller sau dùng.
-    req.user = decoded.user;
+    req.authenticatedUser = decoded.user;
     next();
   });
 };

@@ -1,14 +1,15 @@
 const mongoose = require("mongoose");
 
-const lichdatkhamSchema = new mongoose.Schema({
+
+const lichkhamSchema = new mongoose.Schema({
   BacSiID: { type: mongoose.Schema.Types.ObjectId, ref: "NhanVien" },
-  BenhNhanID: { type: mongoose.Schema.Types.ObjectId, ref: "BenhNhan" },
+  KhoaID: { type: mongoose.Schema.Types.ObjectId, ref: "Khoa", required: true },  // KhoaID is required
+  BenhNhanID: { type: mongoose.Schema.Types.ObjectId, ref: "BenhNhan", required: true },  // BenhNhanID is required
   NhanVienTaoLich: { type: mongoose.Schema.Types.ObjectId, ref: "NhanVien" },
-  KhoaID: { type: mongoose.Schema.Types.ObjectId, ref: "Khoa" },
   TrieuChung: { type: String },
-  TrangThai: { type: Boolean, default: false },
-  NgayDat: { type: Date, default: Date.now } // Sử dụng default là Date.now
+  TrangThai: { type: Boolean, default: false},  // Default to false and allow null
+  NgayDatKham: { type: Date, default: Date.now },  // Default to current date
 });
 
-const LichDatKham = mongoose.model("LichDatKham", lichdatkhamSchema);
+const LichDatKham = mongoose.model("LichDatKham", lichkhamSchema);
 module.exports = LichDatKham;

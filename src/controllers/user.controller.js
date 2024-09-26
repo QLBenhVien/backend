@@ -2,8 +2,9 @@ const bcrypt = require("bcryptjs");
 const TaiKhoan = require("../models/account.model");
 const { message } = require("antd");
 const BenhNhan = require("../models/BenhNhan");
+const { successResponse, errorResponse } = require("../helpers/index");
 const Khoa = require("../models/Khoa");
-const LickKham = require("../models/LichKham");
+const LickKham = require("../models/LichDatKham");
 const NhanVien = require("../models/NhanVien");
 const ThongBao = require("../models/ThongBao");
 const LichDatKham = require("../models/LichDatKham"); 
@@ -123,39 +124,52 @@ module.exports.dangnhap = async (req, res, next) => {
 
 module.exports.home = async (req, res, next) => {};
 
-module.exports.Capnhapthongtin = async (req, res, next) => {
-  const { Email, Ten, NgaySinh, DiaChi, SDT, GioiTinh, CCCD } = req.body;
-
-  if (!Email) {
-    return res
-      .status(400)
-      .json({ message: "email is required to update information." });
-  }
-
+//Xem thông tin người dùng 
+module.exports.getMyAccountInfo = async (req, res) => {
   try {
-    const updatedUser = await BenhNhan.findOneAndUpdate(
-      { Email: Email },
-      {
-        Ten: Ten,
-        NgaySinh: NgaySinh,
-        DiaChi: DiaChi,
-        SDT: SDT,
-        GioiTinh: GioiTinh,
-        CCCD: CCCD,
-      },
-      { new: true, runValidators: true }
-    );
+    const userId = req.authenticatedUser.userId;
+    console.log("userId:", userId);
+    const benhNhan = await BenhNhan.findOne({ accountId: userId });
 
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found." });
+    if (!benhNhan) {
+      return errorResponse(req, res, "Không tìm thấy thông tin tài khoản", 404);
     }
 
-    res.status(200).json({
-      message: "User information updated successfully",
-      updatedUser,
+    return successResponse(req, res, {
+      message: "Thông tin tài khoản của bạn",
+      benhNhan,
     });
   } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
+    return errorResponse(req, res, error.message);
+  }
+}
+//Cập nhật thông tin người dùng 
+module.exports.updateMyAccountInfo = async (req, res) => {
+  try {
+    const userId =  req.authenticatedUser.userId;
+    const updateData = req.body;
+    const updatedBenhNhan = await BenhNhan.findOneAndUpdate(
+      { accountId: userId },
+      {
+        Ten: updateData.Ten || null,
+        DiaChi: updateData.DiaChi || null,
+        CCCD: updateData.CCCD || null,
+        GioiTinh: updateData.GioiTinh || null,
+        SDT: updateData.SDT || null,
+      },
+      { new: true, runValidators: true } // Trả về tài liệu đã cập nhật và chạy các xác thực
+    );
+
+    if (!updatedBenhNhan) {
+      return errorResponse(req, res, "Không tìm thấy thông tin tài khoản để cập nhật", 404);
+    }
+
+    return successResponse(req, res, {
+      message: "Thông tin tài khoản đã được cập nhật thành công",
+      benhNhan: updatedBenhNhan,
+    });
+  } catch (error) {
+    return errorResponse(req, res, error.message);
   }
 };
 
@@ -189,7 +203,7 @@ module.exports.Datkham = async (req, res, next) => {
     const LickKhamnew = new LickKham({
       NhanVienID: MaNV._id,
       BenhNhanID: MaBN,
-      KhoaID: MaKhoa._id,
+      // KhoaID: MaKhoa._id,
       NgayDat: NgayDat,
     });
 

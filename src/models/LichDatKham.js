@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+
 const lichkhamSchema = new mongoose.Schema({
   BacSiID: { type: mongoose.Schema.Types.ObjectId, ref: "NhanVien" },
   KhoaID: { type: mongoose.Schema.Types.ObjectId, ref: "Khoa", required: true },  // KhoaID is required

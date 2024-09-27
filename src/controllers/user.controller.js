@@ -8,9 +8,6 @@ const LickKham = require("../models/LichDatKham");
 const NhanVien = require("../models/NhanVien");
 const ThongBao = require("../models/ThongBao");
 const LichDatKham = require("../models/LichDatKham"); 
-
-const { errorResponse } = require("../helpers");
-
 module.exports.hello = async (req, res) => {
   res.json("day laf duong link /user");
 };
@@ -169,7 +166,7 @@ module.exports.updateMyAccountInfo = async (req, res) => {
       benhNhan: updatedBenhNhan,
     });
   } catch (error) {
-    return errorResponse(req, res, error.message);
+    return errorResponse(req, res, error.message);  
   }
 };
 
@@ -242,7 +239,7 @@ module.exports.thongbao = async (req, res, next) => {
 // cap nhap thong tin nhan vien
 
 //lay lai mat khau
-module.exports.laylaimk = async (req, res, next) => {
+module.exports.Resetpassword = async (req, res, next) => {
   try {
     const { email, matkhau } = req.body;
 

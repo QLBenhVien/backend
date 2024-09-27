@@ -13,13 +13,14 @@ route.get("/trangchu", User.home);
 
 route.get("/me", authJwt.verifyToken, User.getMyAccountInfo);
 route.put("/updateMyAccountInfo", authJwt.verifyToken,User.updateMyAccountInfo);
+route.post("/resetpassword",authJwt.verifyToken, User.Resetpassword);
+
 
 // dang ky kham benh pages
 route.get("/dangkykhambenh/theongay", User.Theongay);
 route.post("/dangkykhambenh/datkham", User.Datkham);
 
 route.get("/thongbao", User.thongbao);
-route.post("/laylaimk", User.laylaimk);
 
 // Tạo hồ sơ bệnh nhân
 route.post("/taohosobn", User.createPatientProfile);

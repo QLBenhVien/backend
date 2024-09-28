@@ -2,7 +2,6 @@ const express = require("express");
 const authJwt = require("../../src/middleware/authJwt");
 const route = express.Router();
 
-
 const User = require("../controllers/user.controller");
 
 route.get("/", User.hello);
@@ -10,11 +9,13 @@ route.post("/dangky", User.dangkyTK);
 route.post("/dangnhap", User.dangnhap);
 route.get("/trangchu", User.home);
 
-
 route.get("/me", authJwt.verifyToken, User.getMyAccountInfo);
-route.put("/updateMyAccountInfo", authJwt.verifyToken,User.updateMyAccountInfo);
-route.post("/resetpassword",authJwt.verifyToken, User.Resetpassword);
-
+route.put(
+  "/updateMyAccountInfo",
+  authJwt.verifyToken,
+  User.updateMyAccountInfo
+);
+route.post("/resetpassword", authJwt.verifyToken, User.Resetpassword);
 
 // dang ky kham benh pages
 route.get("/dangkykhambenh/theongay", User.Theongay);
@@ -25,7 +26,7 @@ route.get("/thongbao", User.thongbao);
 // Tạo hồ sơ bệnh nhân
 route.post("/taohosobn", User.createPatientProfile);
 //Tìm hồ sơ bệnh nhân (tìm theo cccd, email hoặc SĐT)
-route.get("/timhosobn", User.findPatientProfile);
+route.get("/timhosobn", authJwt.verifyToken, User.findPatientProfile);
 //Cập nhật thông tin hồ sơ (với điều kiện nhập đúng cccd và sđt)
 route.put("/capnhathoso", User.updatePatientProfile);
 //Đặt khám

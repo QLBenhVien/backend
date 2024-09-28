@@ -66,11 +66,9 @@ function ReceptionistController() {
       dateEnd.setHours(23, 59, 59, 999); // Đặt thời gian kết thúc của ngày về 23:59:59.999
 
       // Tìm số thứ tự khám (SoThuTuKham) lớn nhất trong ngày dựa trên NgayDatKham
-      const lastLichKham = await LichDatKham
-        .findOne({
-          NgayDatKham: { $gte: dateStart, $lte: dateEnd },
-        })
-        .sort({ SoThuTuKham: -1 }); // Sắp xếp giảm dần theo SoThuTuKham để lấy giá trị lớn nhất
+      const lastLichKham = await LichDatKham.findOne({
+        NgayDatKham: { $gte: dateStart, $lte: dateEnd },
+      }).sort({ SoThuTuKham: -1 }); // Sắp xếp giảm dần theo SoThuTuKham để lấy giá trị lớn nhất
 
       // Nếu đã có lịch khám trong ngày, tăng SoThuTuKham lên 1, ngược lại bắt đầu từ 1
       let sttKham = lastLichKham ? lastLichKham.SoThuTuKham + 1 : 1;
@@ -83,7 +81,7 @@ function ReceptionistController() {
         NhanVienTaoLich: receptionisterId,
         TrieuChung: TrieuChung,
         NgayDatKham: date, // Đảm bảo NgayDatKham là đối tượng Date
-        SoThuTuKham: sttKham
+        SoThuTuKham: sttKham,
       });
 
       await lichDatKhamMoi.save();

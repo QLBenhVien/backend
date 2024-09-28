@@ -21,7 +21,7 @@ const updateUser = async (req, res) => {
     if (!user) {
       return errorResponse(req, res, "Không tìm thấy người dùng", 404);
     }
-    
+
     Object.assign(user, updateData); // Gán dữ liệu mới cho object user
     const updatedUser = await user.save();
 
@@ -64,7 +64,7 @@ const disableUser = async (req, res) => {
       return errorResponse(req, res, "Không tìm thấy người dùng", 404);
     }
 
-    user.active = false; 
+    user.active = false;
     await user.save();
 
     return successResponse(req, res, {
@@ -86,7 +86,7 @@ const enableUser = async (req, res) => {
       return errorResponse(req, res, "Không tìm thấy người dùng", 404);
     }
 
-    user.active = true; 
+    user.active = true;
     await user.save();
 
     return successResponse(req, res, {

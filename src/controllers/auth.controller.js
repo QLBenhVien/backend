@@ -49,7 +49,7 @@ function AuthController() {
       });
   };
 
-    this.register = async (req, res, next) => {
+  this.register = async (req, res, next) => {
     const { email, password, username, role } = req.body;
 
     if (!email || !password || !username || !role) {
@@ -83,39 +83,39 @@ function AuthController() {
   return this;
 }
 
-  //tạo hồ sơ bệnh nhân
-  module.exports.createPatientProfile = async (req, res) => {
-    try {
-      const { Ten, NgaySinh, DiaChi, GioiTinh, SDT, CCCD, Email } = req.body;
+//tạo hồ sơ bệnh nhân
+module.exports.createPatientProfile = async (req, res) => {
+  try {
+    const { Ten, NgaySinh, DiaChi, GioiTinh, SDT, CCCD, Email } = req.body;
 
-      // Kiểm tra dữ liệu đầu vào
-      if (!Ten || !Email) {
-        return res.status(400).json({ message: "Tên và email là bắt buộc." });
-      }
-  
-      // Tạo một hồ sơ bệnh nhân mới
-      const newPatient = new BenhNhan({
-        Ten,
-        NgaySinh,
-        DiaChi,
-        GioiTinh,
-        SDT,
-        CCCD,
-        Email,
-      });
-  
-      // Lưu hồ sơ bệnh nhân vào cơ sở dữ liệu
-      const savedPatient = await newPatient.save();
-  
-      // Phản hồi với hồ sơ bệnh nhân đã tạo
-      res.status(201).json({
-        message: "Hồ sơ bệnh nhân đã được tạo thành công",
-        patient: savedPatient,
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+    // Kiểm tra dữ liệu đầu vào
+    if (!Ten || !Email) {
+      return res.status(400).json({ message: "Tên và email là bắt buộc." });
     }
-  };
+
+    // Tạo một hồ sơ bệnh nhân mới
+    const newPatient = new BenhNhan({
+      Ten,
+      NgaySinh,
+      DiaChi,
+      GioiTinh,
+      SDT,
+      CCCD,
+      Email,
+    });
+
+    // Lưu hồ sơ bệnh nhân vào cơ sở dữ liệu
+    const savedPatient = await newPatient.save();
+
+    // Phản hồi với hồ sơ bệnh nhân đã tạo
+    res.status(201).json({
+      message: "Hồ sơ bệnh nhân đã được tạo thành công",
+      patient: savedPatient,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+  }
+};
 
 module.exports = AuthController();

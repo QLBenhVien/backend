@@ -35,5 +35,8 @@ route.post("/datkham", authJwt.verifyToken, User.datKham);
 route.post("/timlichkham", authJwt.verifyToken, User.xemLichKham);
 //cập nhật lịch khám
 route.put("/capnhatlichkham", authJwt.verifyToken, User.capNhatLichKham);
+//tìm bác sĩ
+route.get("/timkiemnhanvien",User.timKiemNhanVien);
+
 
 module.exports = route;

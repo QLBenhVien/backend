@@ -593,3 +593,56 @@ module.exports.capNhatLichKham = async (req, res) => {
     res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
   }
 };
+//Tìm bác sĩ (tìm theo HoTen và Tenkhoa)
+module.exports.timKiemNhanVien = async (req, res) => {
+  try {
+    const { HoTen, Tenkhoa } = req.query;
+
+    if (!HoTen && !Tenkhoa) {
+      return res.status(400).json({ message: "Phải cung cấp ít nhất một trong các tham số: HoTen hoặc Tenkhoa." });
+    }
+
+    let query = {};
+
+    // Nếu người dùng nhập HoTen
+    if (HoTen) {
+      query.HoTen = { $regex: new RegExp(HoTen.trim(), 'i') };
+    }
+
+    // Nếu người dùng nhập Tenkhoa
+    let khoaId;
+    if (Tenkhoa) {
+      const khoa = await Khoa.findOne({ Tenkhoa: { $regex: new RegExp(Tenkhoa.trim(), 'i') } });
+      if (!khoa) {
+        return res.status(404).json({ message: "Không tìm thấy khoa với tên đã cho." });
+      }
+      khoaId = khoa._id;
+    }
+
+    // Tìm tất cả nhân viên theo query
+    const nhanViens = await NhanVien.find(query);
+
+    // Nếu chỉ tìm theo HoTen và không có bác sĩ nào
+    if (!Tenkhoa && nhanViens.length === 0) {
+      return res.status(404).json({ message: "Không tìm thấy bác sĩ với tên đã cho." });
+    }
+
+    // Nếu có Tenkhoa, kiểm tra xem bác sĩ có thuộc khoa đó không
+    if (khoaId) {
+      const nhanViensInKhoa = nhanViens.filter(nv => nv.MaKhoa && nv.MaKhoa.toString() === khoaId.toString());
+      
+      if (nhanViensInKhoa.length === 0) {
+        return res.status(404).json({ message: `Không tồn tại bác sĩ "${HoTen}" trong khoa "${Tenkhoa}".` });
+      }
+    }
+
+    // Phản hồi với kết quả tìm kiếm
+    res.status(200).json({
+      message: "Kết quả tìm kiếm thành công.",
+      data: nhanViens,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+  }
+};

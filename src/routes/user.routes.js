@@ -21,19 +21,19 @@ route.post("/resetpassword", authJwt.verifyToken, User.Resetpassword);
 route.get("/dangkykhambenh/theongay", User.Theongay);
 route.post("/dangkykhambenh/datkham", User.Datkham);
 
-route.get("/thongbao", User.thongbao);
+route.get("/thongbao", authJwt.verifyToken, User.thongbao);
 
 // Tạo hồ sơ bệnh nhân
-route.post("/taohosobn", User.createPatientProfile);
+route.post("/taohosobn", authJwt.verifyToken, User.createPatientProfile);
 //Tìm hồ sơ bệnh nhân (tìm theo cccd, email hoặc SĐT)
 route.get("/timhosobn", authJwt.verifyToken, User.findPatientProfile);
 //Cập nhật thông tin hồ sơ (với điều kiện nhập đúng cccd và sđt)
-route.put("/capnhathoso", User.updatePatientProfile);
+route.put("/capnhathoso", authJwt.verifyToken, User.updatePatientProfile);
 //Đặt khám
-route.post("/datkham", User.datKham);
+route.post("/datkham", authJwt.verifyToken, User.datKham);
 //xem lịch đặt khám (check từ số CCCD,SĐT và Email)
-route.post("/timlichkham", User.xemLichKham);
+route.post("/timlichkham", authJwt.verifyToken, User.xemLichKham);
 //cập nhật lịch khám
-route.put("/capnhatlichkham", User.capNhatLichKham);
+route.put("/capnhatlichkham", authJwt.verifyToken, User.capNhatLichKham);
 
 module.exports = route;

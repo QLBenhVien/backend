@@ -8,6 +8,8 @@ const LickKham = require("../models/LichDatKham");
 const NhanVien = require("../models/NhanVien");
 const ThongBao = require("../models/ThongBao");
 const LichDatKham = require("../models/LichDatKham");
+const ChucVu = require("../models/ChucVu");
+const DanhSachKham = require("../models/DanhSachKham");
 module.exports.hello = async (req, res) => {
   res.json("day laf duong link /user");
 };
@@ -380,22 +382,20 @@ module.exports.findPatientProfile = async (req, res) => {
 //cập nhật hồ sơ dựa vào CCCD và SĐT đã tạo trước đó
 module.exports.updatePatientProfile = async (req, res) => {
   try {
-    const { CCCD, SDT, updatedData } = req.body; // Dữ liệu mới để cập nhật
+    const userId = req.authenticatedUser.userId;
+    const { updatedData } = req.body;
 
     // Kiểm tra dữ liệu đầu vào
-    if (!CCCD || !SDT) {
-      return res
-        .status(400)
-        .json({ message: "CCCD và số điện thoại là bắt buộc." });
+    if (!userId) {
+      return res.status(400).json({ message: "yêu cầu đăng nhập!" });
     }
 
     // Tìm hồ sơ bệnh nhân dựa trên CCCD và SDT
-    const patient = await BenhNhan.findOne({ CCCD, SDT });
+    const patient = await BenhNhan.findOne({ accountId: userId });
 
     if (!patient) {
       return res.status(404).json({
-        message:
-          "Không tìm thấy hồ sơ bệnh nhân với CCCD và số điện thoại đã cho.",
+        message: "Không tìm thấy hồ sơ bệnh nhân",
       });
     }
 
@@ -415,69 +415,126 @@ module.exports.updatePatientProfile = async (req, res) => {
     res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
   }
 };
+//xem dat kham
+module.exports.getInfoDatKham = async (req, res) => {
+  try {
+    const userId = req.authenticatedUser.userId;
+    console.log("userId:", userId);
+
+    // Tìm bệnh nhân dựa trên accountId
+    const benhNhan = await BenhNhan.findOne({ accountId: userId });
+
+    // Kiểm tra nếu không tìm thấy bệnh nhân
+    if (!benhNhan) {
+      return res.status(404).json({
+        message: "Không tìm thấy thông tin bệnh nhân với userId đã cho.",
+      });
+    }
+
+    // Lấy tất cả các khoa
+    const khoa = await Khoa.find({});
+
+    // Kiểm tra nếu không có khoa nào được tìm thấy
+    if (!khoa || khoa.length === 0) {
+      return res.status(404).json({
+        message: "Không tìm thấy bất kỳ khoa nào.",
+      });
+    }
+
+    const idBacsi = await ChucVu.findOne({ TenCV: "Bác Sĩ" });
+    console.log(idBacsi._id);
+    const bacsi = await NhanVien.find({ MaCV: idBacsi._id });
+
+    console.log(bacsi);
+
+    // Nếu mọi thứ thành công, trả về thông tin
+    return successResponse(req, res, {
+      message: "Thành công",
+      benhNhan,
+      khoa,
+      bacsi,
+    });
+  } catch (error) {
+    console.error("Lỗi xảy ra:", error);
+    return errorResponse(req, res, error.message);
+  }
+};
+
+// tìm lịch khám của bác sĩ
+module.exports.timlichkham = async (req, res) => {
+  try {
+    const { BacSiID } = req.body;
+    if (!BacSiID) {
+      return res.status(400).json({ message: "Yêu cầu chọn bác sĩ" });
+    }
+    const DanhSachKhams = await DanhSachKham.find({ MaNV: BacSiID });
+    console.log(DanhSachKhams);
+    return successResponse(req, res, {
+      message: "Thành công",
+      lichkham: DanhSachKhams,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+  }
+};
 
 //đặt lịch khám
+// Đặt lịch khám
 module.exports.datKham = async (req, res) => {
   try {
-    const { TrieuChung, email, tenBacSi, tenKhoa, NgayDatKham } = req.body;
+    const { MaNV, MaBN, MaKhoa, NgayDat, CaKham, TrieuChung } = req.body;
+    console.log(req.body);
 
     // Kiểm tra dữ liệu đầu vào
-    if (!TrieuChung || !email || !tenBacSi || !tenKhoa) {
+    if (!MaNV || !MaBN || !MaKhoa || !NgayDat) {
       return res
         .status(400)
         .json({ message: "Tất cả các trường là bắt buộc." });
     }
 
-    // Kiểm tra định dạng Ngày Đặt Khám nếu có
-    if (NgayDatKham) {
-      const isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(NgayDatKham);
-      if (!isValidDate) {
-        return res.status(400).json({
-          message:
-            "Định dạng Ngày Đặt Khám không hợp lệ. Vui lòng sử dụng định dạng 'YYYY-MM-DD'. Ví dụ: '2024-10-10'.",
-        });
-      }
+    // Kiểm tra định dạng Ngày Đặt Khám
+    const isValidDate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(
+      NgayDat
+    );
+    if (!isValidDate) {
+      return res.status(400).json({
+        message:
+          "Định dạng Ngày Đặt Khám không hợp lệ. Vui lòng sử dụng định dạng 'YYYY-MM-DDTHH:mm:ss.sssZ'.",
+      });
     }
 
     // Tìm bệnh nhân
-    const patient = await BenhNhan.findOne({ Email: email });
+    const patient = await BenhNhan.findById(MaBN);
     if (!patient) {
-      return res.status(400).json({ message: "Bệnh nhân không tồn tại." });
+      return res.status(404).json({ message: "Bệnh nhân không tồn tại." });
     }
     const BenhNhanID = patient._id; // Lấy ID bệnh nhân
 
     // Tìm bác sĩ
-    const doctor = await NhanVien.findOne({ HoTen: tenBacSi });
+    const doctor = await NhanVien.findById(MaNV);
     if (!doctor) {
-      return res.status(400).json({ message: "Bác sĩ không tồn tại." });
+      return res.status(404).json({ message: "Bác sĩ không tồn tại." });
     }
     const BacSiID = doctor._id; // Lấy ID bác sĩ
 
-    // Tìm nhân viên (có thể là nhân viên hiện tại, ví dụ qua token)
-    const nhanVien = await NhanVien.findOne({
-      /* điều kiện tìm kiếm nhân viên */
-    });
-    if (!nhanVien) {
-      return res.status(400).json({ message: "Nhân viên không tồn tại." });
-    }
-    const NhanVienTaoLich = nhanVien._id; // Lấy ID nhân viên
-
     // Tìm khoa
-    const department = await Khoa.findOne({ tenkhoa: tenKhoa });
+    const department = await Khoa.findById(MaKhoa);
     if (!department) {
-      return res.status(400).json({ message: "Khoa không tồn tại." });
+      return res.status(404).json({ message: "Khoa không tồn tại." });
     }
     const KhoaID = department._id; // Lấy ID khoa
 
     // Tạo một lịch hẹn mới
     const newLichDatKham = new LichDatKham({
       BacSiID,
-      BenhNhanID,
-      NhanVienTaoLich,
       KhoaID,
+      BenhNhanID,
       TrieuChung,
-      NgayDat: new Date(NgayDatKham || Date.now()), // Nếu không có NgayDatKham, sử dụng ngày hiện tại
-      TrangThai: false, // Nếu cần
+      NgayDat: new Date(NgayDat),
+      CaKham: CaKham,
+      TrangThai: false,
+      SoThuTuKham: null, // Số thứ tự khám có thể được đặt giá trị ở nơi khác
     });
 
     // Lưu lịch hẹn vào cơ sở dữ liệu
@@ -490,24 +547,24 @@ module.exports.datKham = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+    res
+      .status(500)
+      .json({ message: "Lỗi máy chủ nội bộ", error: error.message });
   }
 };
 
 //xem thông tin lịch đặt khám (tìm từ CCCD,SĐT và Email)
 module.exports.xemLichKham = async (req, res) => {
   try {
-    const { CCCD, SDT, Email } = req.body;
+    const userId = req.authenticatedUser?.userId;
 
     // Kiểm tra dữ liệu đầu vào
-    if (!CCCD || !SDT || !Email) {
-      return res
-        .status(400)
-        .json({ message: "CCCD, số điện thoại và email là bắt buộc." });
+    if (!userId) {
+      return res.status(400).json({ message: "Vui lòng đăng nhập lại!" });
     }
 
     // Tìm bệnh nhân
-    const patient = await BenhNhan.findOne({ CCCD, SDT, Email });
+    const patient = await BenhNhan.findOne({ accountId: userId });
     if (!patient) {
       return res
         .status(404)
@@ -516,6 +573,8 @@ module.exports.xemLichKham = async (req, res) => {
 
     // Lấy ID bệnh nhân
     const BenhNhanID = patient._id;
+    const BenhNhanTen = patient.Ten;
+    console.log(BenhNhanID);
 
     // Tìm lịch hẹn dựa trên ID bệnh nhân
     const appointments = await LichDatKham.find({ BenhNhanID });
@@ -525,14 +584,69 @@ module.exports.xemLichKham = async (req, res) => {
         .json({ message: "Không có lịch hẹn nào được tìm thấy." });
     }
 
+    // ten benh nhan
+
     // Phản hồi với danh sách lịch hẹn
-    res.status(200).json({
+    return res.status(200).json({
       message: "Danh sách lịch hẹn đã được tìm thấy.",
-      appointments,
+      lichkham: appointments,
+      TenBN: BenhNhanTen,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+    return res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+  }
+};
+// xem chi tiet lich kham
+module.exports.xemchitietLichKham = async (req, res) => {
+  try {
+    const { idLichKham } = req.body;
+    const userId = req.authenticatedUser?.userId;
+
+    // Kiểm tra dữ liệu đầu vào
+    if (!userId) {
+      return res.status(400).json({ message: "Vui lòng đăng nhập lại!" });
+    }
+
+    // Tìm bệnh nhân
+    const patient = await BenhNhan.findOne({ accountId: userId });
+    if (!patient) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy bệnh nhân với thông tin đã cho." });
+    }
+
+    // Lấy ID bệnh nhân
+    const BenhNhanID = patient._id;
+    const BenhNhanTen = patient.Ten;
+    console.log(BenhNhanID);
+
+    // Tìm lịch hẹn dựa trên ID lịch hẹn
+    const appointment = await LichDatKham.findOne({ _id: idLichKham });
+    if (!appointment) {
+      return res
+        .status(404)
+        .json({ message: "Không có lịch hẹn nào được tìm thấy." });
+    }
+
+    // Tìm tên bác sĩ
+    const doctor = await NhanVien.findOne({ _id: appointment.BacSiID });
+    if (!doctor) {
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy bác sĩ với thông tin đã cho." });
+    }
+
+    // Phản hồi với chi tiết lịch hẹn
+    return res.status(200).json({
+      message: "Chi tiết lịch hẹn đã được tìm thấy.",
+      lichkham: appointment,
+      TenBN: BenhNhanTen,
+      TenBS: doctor.HoTen,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
   }
 };
 
@@ -599,22 +713,29 @@ module.exports.timKiemNhanVien = async (req, res) => {
     const { HoTen, Tenkhoa } = req.query;
 
     if (!HoTen && !Tenkhoa) {
-      return res.status(400).json({ message: "Phải cung cấp ít nhất một trong các tham số: HoTen hoặc Tenkhoa." });
+      return res.status(400).json({
+        message:
+          "Phải cung cấp ít nhất một trong các tham số: HoTen hoặc Tenkhoa.",
+      });
     }
 
     let query = {};
 
     // Nếu người dùng nhập HoTen
     if (HoTen) {
-      query.HoTen = { $regex: new RegExp(HoTen.trim(), 'i') };
+      query.HoTen = { $regex: new RegExp(HoTen.trim(), "i") };
     }
 
     // Nếu người dùng nhập Tenkhoa
     let khoaId;
     if (Tenkhoa) {
-      const khoa = await Khoa.findOne({ Tenkhoa: { $regex: new RegExp(Tenkhoa.trim(), 'i') } });
+      const khoa = await Khoa.findOne({
+        Tenkhoa: { $regex: new RegExp(Tenkhoa.trim(), "i") },
+      });
       if (!khoa) {
-        return res.status(404).json({ message: "Không tìm thấy khoa với tên đã cho." });
+        return res
+          .status(404)
+          .json({ message: "Không tìm thấy khoa với tên đã cho." });
       }
       khoaId = khoa._id;
     }
@@ -624,15 +745,21 @@ module.exports.timKiemNhanVien = async (req, res) => {
 
     // Nếu chỉ tìm theo HoTen và không có bác sĩ nào
     if (!Tenkhoa && nhanViens.length === 0) {
-      return res.status(404).json({ message: "Không tìm thấy bác sĩ với tên đã cho." });
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy bác sĩ với tên đã cho." });
     }
 
     // Nếu có Tenkhoa, kiểm tra xem bác sĩ có thuộc khoa đó không
     if (khoaId) {
-      const nhanViensInKhoa = nhanViens.filter(nv => nv.MaKhoa && nv.MaKhoa.toString() === khoaId.toString());
-      
+      const nhanViensInKhoa = nhanViens.filter(
+        (nv) => nv.MaKhoa && nv.MaKhoa.toString() === khoaId.toString()
+      );
+
       if (nhanViensInKhoa.length === 0) {
-        return res.status(404).json({ message: `Không tồn tại bác sĩ "${HoTen}" trong khoa "${Tenkhoa}".` });
+        return res.status(404).json({
+          message: `Không tồn tại bác sĩ "${HoTen}" trong khoa "${Tenkhoa}".`,
+        });
       }
     }
 
@@ -646,3 +773,24 @@ module.exports.timKiemNhanVien = async (req, res) => {
     res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
   }
 };
+
+//test them danh sach kham cua bac si , day la test khoong phai cua user
+module.exports.themlichlam = async (req, res) => {
+  try {
+    const { MaNV, NgayKham, Ca } = req.body;
+    const DanhSachKhams = new DanhSachKham({
+      MaNV: MaNV,
+      NgayKham: NgayKham,
+      Ca: Ca,
+    });
+    const saveDanhSachKham = await DanhSachKhams.save();
+    res.status(200).json({
+      message: "Đăng ký lịch khám thành công",
+      DanhSachKham: saveDanhSachKham,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "internal sever error" });
+  }
+};
+
+// ket thuc

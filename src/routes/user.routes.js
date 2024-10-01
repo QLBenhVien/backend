@@ -30,13 +30,20 @@ route.get("/timhosobn", authJwt.verifyToken, User.findPatientProfile);
 //Cập nhật thông tin hồ sơ (với điều kiện nhập đúng cccd và sđt)
 route.put("/capnhathoso", authJwt.verifyToken, User.updatePatientProfile);
 //Đặt khám
-route.post("/datkham", authJwt.verifyToken, User.datKham);
+route.put("/datkham", User.datKham);
+//thong tin dat kham
+route.get("/thongtindatkham", authJwt.verifyToken, User.getInfoDatKham);
 //xem lịch đặt khám (check từ số CCCD,SĐT và Email)
-route.post("/timlichkham", authJwt.verifyToken, User.xemLichKham);
+route.get("/xemlichkham", authJwt.verifyToken, User.xemLichKham);
+// xem chi tiet lixh kham
+route.put("/xemchitietlichkham", authJwt.verifyToken, User.xemchitietLichKham);
+// tìm lịch khám của bác sĩ
+route.put("/timlichkham", User.timlichkham);
 //cập nhật lịch khám
 route.put("/capnhatlichkham", authJwt.verifyToken, User.capNhatLichKham);
 //tìm bác sĩ
-route.get("/timkiemnhanvien",User.timKiemNhanVien);
+route.get("/timkiemnhanvien", authJwt.verifyToken, User.timKiemNhanVien);
 
-
+//test tinh nang them lich kham
+route.put("/themlichkham", User.themlichlam);
 module.exports = route;

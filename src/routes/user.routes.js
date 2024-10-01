@@ -15,7 +15,7 @@ route.put(
   authJwt.verifyToken,
   User.updateMyAccountInfo
 );
-route.post("/resetpassword", authJwt.verifyToken, User.Resetpassword);
+route.post("/resetpassword",  User.Resetpassword);
 
 // dang ky kham benh pages
 route.get("/dangkykhambenh/theongay", User.Theongay);

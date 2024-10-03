@@ -249,7 +249,7 @@ module.exports.thongbao = async (req, res, next) => {
 module.exports.Resetpassword = async (req, res, next) => {
   try {
     const { email, matkhau } = req.body;
-
+    console.log("email and password: ", email, matkhau);
     // Find the email in the database
     const Email = await TaiKhoan.findOne({ email });
 
@@ -479,7 +479,33 @@ module.exports.timlichkham = async (req, res) => {
   }
 };
 
-//đặt lịch khám
+//huy lịch khám
+module.exports.huylichdat = async (req, res) => {
+  try {
+    const { idlichdat } = req.body;
+
+    if (!idlichdat) {
+      return res.status(400).json({ message: "Phiếu đặt khám không tồn tại" });
+    }
+
+    console.log(idlichdat);
+    const deletedAppointment = await LichDatKham.findByIdAndDelete({
+      _id: idlichdat,
+    });
+
+    if (!deletedAppointment) {
+      return res.status(404).json({ message: "Lịch đặt khám không tồn tại" });
+    }
+
+    console.log(`Lịch đặt khám có ID ${idlichdat} đã bị hủy.`);
+    return res
+      .status(200)
+      .json({ message: "Lịch đặt khám đã được hủy thành công" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+  }
+};
 // Đặt lịch khám
 module.exports.datKham = async (req, res) => {
   try {

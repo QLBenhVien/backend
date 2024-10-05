@@ -5,7 +5,7 @@ const nhanvienSchema = new mongoose.Schema({
 	MaKhoa: { type: mongoose.Schema.Types.ObjectId, ref: "Khoa", default: null },
 	MaTK: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: "NhanVien",
+		ref: "account",
 		default: null,
 	},
 	HoTen: { type: String, default: null },

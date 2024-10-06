@@ -1,4 +1,5 @@
 const TaiKhoan = require("../models/account.model");
+const BenhNhan = require("../models/BenhNhan");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { successResponse, errorResponse } = require("../helpers/index");
@@ -50,37 +51,78 @@ function AuthController() {
   };
 
   this.register = async (req, res, next) => {
-    const { email, password, username, role } = req.body;
-
-    if (!email || !password || !username || !role) {
+    const { email, password, username, role, Ten, DiaChi, CCCD, GioiTinh, SDT } = req.body;
+  
+    // Kiểm tra xem có bất kỳ trường nào bị bỏ trống không
+    if (!email || !password || !username || !role || !Ten) {
       return errorResponse(
         req,
         res,
-        "Bạn cần nhập đầy đủ các thông tin để nhập tài khoản"
+        "Bạn cần nhập đầy đủ các thông tin để đăng ký tài khoản."
       );
     }
-
-    const userNew = new TaiKhoan(req.body);
-    console.log(userNew);
+  
+    // Kiểm tra định dạng email
+    if (!email.endsWith('@gmail.com')) {
+      return errorResponse(
+        req,
+        res,
+        "Email phải có định dạng @gmail.com."
+      );
+    }
+  
+    // Kiểm tra người dùng đã tồn tại chưa
     const userOld = await TaiKhoan.findOne({ email });
     if (userOld != null) {
       return errorResponse(req, res, "Người dùng đã tồn tại.");
     }
-    const salt = await bcrypt.genSalt(10);
-    userNew.password = await bcrypt.hash(userNew.password, salt);
-    const saveUserNew = await userNew.save();
-    if (saveUserNew != null) {
-      return successResponse(req, res, {
-        id: saveUserNew.id,
-        email: saveUserNew.email,
-        role: saveUserNew.role,
-      });
-    } else {
-      return errorResponse(req, res, "Lưu không thành công");
+  
+    // Kiểm tra tên người dùng đã tồn tại chưa
+    const userWithSameUsername = await TaiKhoan.findOne({ username });
+    if (userWithSameUsername != null) {
+      return errorResponse(req, res, "Tên người dùng đã tồn tại.");
     }
+     // Tạo một đối tượng người dùng mới
+     const userNew = new TaiKhoan({ email, password, username, role });
+  
+    // Băm mật khẩu
+    const salt = await bcrypt.genSalt(10);
+    userNew.password = await bcrypt.hash(password, salt);
+  
+    // Lưu người dùng mới
+    const saveUserNew = await userNew.save();
+    if (!saveUserNew) {
+      return errorResponse(req, res, "Lưu tài khoản không thành công.");
+    }
+  
+    // Tạo bản ghi cho bệnh nhân
+    const benhNhanNew = new BenhNhan({
+      Ten,
+      DiaChi: DiaChi || null,
+      CCCD: CCCD || null,
+      GioiTinh: GioiTinh || null,
+      SDT: SDT || null,
+      Email: email,
+      accountId: saveUserNew._id, // Liên kết tài khoản với bệnh nhân
+    });
+  
+    // Lưu thông tin bệnh nhân
+    const saveBenhNhanNew = await benhNhanNew.save();
+    if (!saveBenhNhanNew) {
+      return errorResponse(req, res, "Lưu bệnh nhân không thành công.");
+    }
+  
+    // Trả về phản hồi thành công
+    return successResponse(req, res, {
+      id: saveUserNew.id,
+      email: saveUserNew.email,
+      role: saveUserNew.role,
+      benhNhanId: saveBenhNhanNew._id, // Trả thêm thông tin về bệnh nhân
+    });
   };
-
+  
   return this;
+  
 }
 
 //tạo hồ sơ bệnh nhân

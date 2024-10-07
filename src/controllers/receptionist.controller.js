@@ -8,17 +8,20 @@ const LichDatKham = require("../models/LichDatKham");
 const NhanVien = require("../models/NhanVien");
 const BenhNhan = require("../models/BenhNhan");
 const ChucVu = require("../models/ChucVu");
+const PhieuKham = require("../models/PhieuKham")
 
 function ReceptionistController() {
   this.scheduleappointment = async (req, res, next) => {
     try {
       const { MaBS, MaBN, MaKhoa, TrieuChung, NgayDatKham } = req.body;
       const receptionisterId = req.authenticatedUser.userId;
+
       // Kiểm tra tính hợp lệ của các ID
       if (!validateObjectId(MaKhoa, "Mã khoa", res)) return;
       if (!validateObjectId(MaBN, "Mã bệnh nhân", res)) return;
       if (!validateObjectId(MaBS, "Mã bác sĩ", res)) return;
-      // Kiểm tra xem NgayDatKham có phải là một ngày hợp lệ và là ngày trong tương lai không
+
+      // Kiểm tra NgayDatKham có hợp lệ và là ngày trong tương lai không
       const parsedDate = Date.parse(NgayDatKham);
       if (isNaN(parsedDate)) {
         return res.status(400).json({ message: "Ngày đặt khám không hợp lệ" });
@@ -31,26 +34,23 @@ function ReceptionistController() {
           .json({ message: "Ngày đặt khám phải là ngày trong tương lai" });
       }
 
-      // Kiểm tra xem MaKhoa có tồn tại trong bảng Khoa hay không
+      // Kiểm tra sự tồn tại của MaKhoa, MaBN, và MaBS
       const khoa = await Khoa.findById(MaKhoa);
       if (!khoa) {
         return errorResponse(req, res, "Khoa không tồn tại", 404);
       }
 
-      // Kiểm tra xem MaBN có tồn tại trong bảng NhanVien hay không
       const benhNhan = await BenhNhan.findById(MaBN);
       if (!benhNhan) {
         return errorResponse(req, res, "Bệnh nhân không tồn tại", 404);
       }
 
-      // Kiểm tra sự tồn tại của BacSi nếu có
       let hasBS = false;
       if (MaBS && MaBS.trim() !== "") {
-        const bacSi = await NhanVien.findById(MaBS).populate("MaCV"); // Populate để lấy thông tin về chức vụ;
+        const bacSi = await NhanVien.findById(MaBS).populate("MaCV");
         if (!bacSi) {
           return errorResponse(req, res, "Bác sĩ này không tồn tại", 404);
         }
-        // Kiểm tra nếu chức vụ của nhân viên là "Bác sĩ"
         if (bacSi.MaCV && bacSi.MaCV.TenCV === "Bác Sĩ") {
           hasBS = true;
         } else {
@@ -58,67 +58,100 @@ function ReceptionistController() {
         }
       }
 
-      // Chuyển đổi NgayDatKham thành một giá trị đại diện cho ngày (YYYY-MM-DD) để so sánh
+      // Lấy ngày và tính SoThuTuKham
       const dateStart = new Date(date);
-      dateStart.setHours(0, 0, 0, 0); // Đặt thời gian bắt đầu của ngày về 00:00:00.000
-
+      dateStart.setHours(0, 0, 0, 0);
       const dateEnd = new Date(date);
-      dateEnd.setHours(23, 59, 59, 999); // Đặt thời gian kết thúc của ngày về 23:59:59.999
+      dateEnd.setHours(23, 59, 59, 999);
 
-      // Tìm số thứ tự khám (SoThuTuKham) lớn nhất trong ngày dựa trên NgayDatKham
       const lastLichKham = await LichDatKham.findOne({
         NgayDatKham: { $gte: dateStart, $lte: dateEnd },
-      }).sort({ SoThuTuKham: -1 }); // Sắp xếp giảm dần theo SoThuTuKham để lấy giá trị lớn nhất
+      }).sort({ SoThuTuKham: -1 });
 
-      // Nếu đã có lịch khám trong ngày, tăng SoThuTuKham lên 1, ngược lại bắt đầu từ 1
       let sttKham = lastLichKham ? lastLichKham.SoThuTuKham + 1 : 1;
 
-      // Tạo đối tượng LichDatKham
+      // Tạo lịch đặt khám mới
       const lichDatKhamMoi = new LichDatKham({
         BacSiID: hasBS ? MaBS : null,
         KhoaID: MaKhoa,
         BenhNhanID: MaBN,
         NhanVienTaoLich: receptionisterId,
         TrieuChung: TrieuChung,
-        NgayDatKham: date, // Đảm bảo NgayDatKham là đối tượng Date
+        NgayDatKham: date,
         SoThuTuKham: sttKham,
       });
 
       await lichDatKhamMoi.save();
+
+      if (lichDatKhamMoi.TrangThai) {
+        const phieuKhamMoi = new PhieuKham({
+          MaPhieu: `PK${Date.now()}`, // Tạo mã phiếu tự động
+          MaDanhSach: lichDatKhamMoi._id, // Tham chiếu đến lịch đặt khám vừa tạo
+          MaBenhNhan: MaBN,
+          MaNhanVien: receptionisterId, // Nhân viên tạo phiếu khám
+          TenPhieu: "Phiếu khám bệnh", // Tên phiếu
+          SoThuTuKham: sttKham,
+          NgayKham: date, // Cung cấp giá trị cho NgayKham, sử dụng giá trị date từ trước
+        });
+  
+        await phieuKhamMoi.save();
+      }
+  
       return successResponse(
         req,
         res,
         {
           message: "Lịch khám đã được tạo thành công",
           lichDatKham: lichDatKhamMoi,
+          phieuKham: lichDatKhamMoi.TrangThai ? phieuKhamMoi : null, // Chỉ trả về phieuKham nếu trạng thái là true
         },
         201
       );
     } catch (error) {
+      console.error("Error when scheduling appointment: ", error);
       return errorResponse(req, res, "Lỗi server khi tạo lịch khám.");
     }
   };
+
 
   this.approveappointment = async (req, res) => {
     try {
       const { appointmentID } = req.params;
       const receptionisterId = req.authenticatedUser.userId;
+  
       // Kiểm tra tính hợp lệ của các ID
       if (!validateObjectId(appointmentID, "Mã cuộc hẹn", res)) return;
-      // Kiểm tra xem MaBN có tồn tại trong bảng NhanVien hay không
+  
+      // Kiểm tra xem cuộc hẹn có tồn tại không
       const appointment = await LichDatKham.findById(appointmentID);
       if (!appointment) {
         return errorResponse(req, res, "Lịch khám này không tồn tại", 404);
       }
-
+  
+      // Cập nhật trạng thái của lịch khám
       appointment.TrangThai = true;
       await appointment.save();
+  
+      // Tạo phiếu khám nếu trạng thái là true
+      const phieuKhamMoi = new PhieuKham({
+        MaPhieu: `PK${Date.now()}`, // Tạo mã phiếu tự động
+        MaDanhSach: appointment._id, 
+        MaBenhNhan: appointment.BenhNhanID, 
+        MaNhanVien: receptionisterId, 
+        TenPhieu: "Phiếu khám bệnh", 
+        SoThuTuKham: appointment.SoThuTuKham, 
+        NgayKham: appointment.NgayDatKham, 
+      });
+  
+      await phieuKhamMoi.save();
+  
       return successResponse(
         req,
         res,
         {
-          message: "Lịch khám đã được xác nhận thành công",
+          message: "Lịch khám đã được xác nhận thành công và phiếu khám đã được tạo.",
           lichDatKham: appointment,
+          phieuKham: phieuKhamMoi, // Trả về phiếu khám đã tạo
         },
         200
       );
@@ -126,6 +159,7 @@ function ReceptionistController() {
       return errorResponse(req, res, "Lỗi server khi xác nhận lịch khám.");
     }
   };
+  
 
   this.cancelappointment = async (req, res) => {
     try {

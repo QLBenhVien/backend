@@ -85,7 +85,7 @@ function ReceptionistController() {
 
       if (lichDatKhamMoi.TrangThai) {
         const phieuKhamMoi = new PhieuKham({
-          // MaPhieu: `PK${Date.now()}`, 
+          MaPhieu: `PK${Date.now()}`, 
           MaDanhSach: lichDatKhamMoi._id, // Tham chiếu đến lịch đặt khám vừa tạo
           MaBenhNhan: MaBN,
           MaNhanVien: receptionisterId, // Nhân viên tạo phiếu khám
@@ -134,7 +134,7 @@ function ReceptionistController() {
   
       // Tạo phiếu khám nếu trạng thái là true
       const phieuKhamMoi = new PhieuKham({
-        // MaPhieu: `PK${Date.now()}`, 
+        MaPhieu: `PK${Date.now()}`, 
         MaDanhSach: appointment._id, 
         MaBenhNhan: appointment.BenhNhanID, 
         MaNhanVien: receptionisterId, 

@@ -13,7 +13,7 @@ const catchError = (err, res) => {
 };
 
 const verifyToken = (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
+  const token = req.header("Authorization")?.replace("Bearer ", "");
   if (!token) {
     return res.status(403).send({
       message: "No token provided!",
@@ -24,14 +24,14 @@ const verifyToken = (req, res, next) => {
     if (err) {
       return catchError(err, res);
     }
+    console.log("da verify token");
     //Từ token mình biết được nó là của người dùng nào và gắn ở đây để gửi sang controller sau dùng.
     req.authenticatedUser = decoded.user;
     next();
   });
 };
- 
 
 const authJwt = {
-  verifyToken: verifyToken
+  verifyToken: verifyToken,
 };
 module.exports = authJwt;

@@ -30,7 +30,7 @@ route.get("/timhosobn", authJwt.verifyToken, User.findPatientProfile);
 //Cập nhật thông tin hồ sơ (với điều kiện nhập đúng cccd và sđt)
 route.put("/capnhathoso", authJwt.verifyToken, User.updatePatientProfile);
 //Đặt khám
-route.put("/datkham", User.datKham);
+route.put("/datkham",authJwt.verifyToken, User.datKham);
 //thong tin dat kham
 route.get("/thongtindatkham", authJwt.verifyToken, User.getInfoDatKham);
 //xem lịch đặt khám (check từ số CCCD,SĐT và Email)
@@ -49,4 +49,9 @@ route.get("/timkiemnhanvien", authJwt.verifyToken, User.timKiemNhanVien);
 
 //test tinh nang them lich kham
 route.put("/themlichkham", User.themlichlam);
+
+//xem bệnh án
+route.get("/xembenhan", authJwt.verifyToken, User.xemBenhAn);
+//xem phiếu khám bệnh
+route.get("/xemphieukham", authJwt.verifyToken, User.xemPhieuKham);
 module.exports = route;

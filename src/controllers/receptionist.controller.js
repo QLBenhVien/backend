@@ -10,6 +10,7 @@ const BenhNhan = require("../models/BenhNhan");
 const ChucVu = require("../models/ChucVu");
 
 function ReceptionistController() {
+  // đặt lịch
   this.scheduleappointment = async (req, res, next) => {
     try {
       const { MaBS, MaBN, MaKhoa, TrieuChung, NgayDatKham } = req.body;
@@ -99,14 +100,15 @@ function ReceptionistController() {
     }
   };
 
+  // phe duyet lich kham
   this.approveappointment = async (req, res) => {
     try {
-      const { appointmentID } = req.params;
+      const { id } = req.params;
       const receptionisterId = req.authenticatedUser.userId;
       // Kiểm tra tính hợp lệ của các ID
-      if (!validateObjectId(appointmentID, "Mã cuộc hẹn", res)) return;
+      if (!validateObjectId(id, "Mã cuộc hẹn", res)) return;
       // Kiểm tra xem MaBN có tồn tại trong bảng NhanVien hay không
-      const appointment = await LichDatKham.findById(appointmentID);
+      const appointment = await LichDatKham.findById(id);
       if (!appointment) {
         return errorResponse(req, res, "Lịch khám này không tồn tại", 404);
       }
@@ -127,37 +129,35 @@ function ReceptionistController() {
     }
   };
 
+  // huy lich kham
   this.cancelappointment = async (req, res) => {
     try {
-      const { appointmentID } = req.params;
-      const receptionisterId = req.authenticatedUser.userId;
+      const { id } = req.body;
+      console.log(id);
       // Kiểm tra tính hợp lệ của các ID
-      if (!validateObjectId(appointmentID, "Mã cuộc hẹn", res)) return;
+      if (!validateObjectId(id, "Mã cuộc hẹn", res)) return;
       // Kiểm tra xem MaBN có tồn tại trong bảng NhanVien hay không
-      const appointment = await LichDatKham.findById(appointmentID);
+      const appointment = await LichDatKham.findById({ id });
       if (!appointment) {
         return errorResponse(req, res, "Lịch khám này không tồn tại", 404);
       }
 
-      appointment.TrangThai = false;
-      // Cập nhật tượng vào cơ sở dữ liệu
+      appointment.TrangThai = "canceled";
       await appointment.save();
-      // Trả về phản hồi thành công
       return successResponse(
         req,
         res,
         {
           message: "Lịch khám đã được hủy thành công",
-          lichDatKham: appointment,
         },
         200
       );
     } catch (error) {
-      // Xử lý lỗi và trả về phản hồi lỗi
-      return errorResponse(req, res, "Lỗi server khi xác nhận lịch khám.");
+      return errorResponse(req, res, "Lỗi server khi xác nhận lịch khám.", 500);
     }
   };
 
+  // cap nhap lich kham
   this.updateAppointment = async (req, res) => {
     try {
       const { appointmentID } = req.params;
@@ -201,6 +201,68 @@ function ReceptionistController() {
     }
   };
 
+  // list all lich kham
+  this.listLichdat = async (req, res) => {
+    try {
+      const dataDatkham = await LichDatKham.find({ TrangThai: false });
+
+      const datakham = [];
+
+      for (const dat of dataDatkham) {
+        const benhNhan = await BenhNhan.findOne({ _id: dat.BenhNhanID });
+        datakham.push({
+          id: dat._id,
+          idBn: dat.BenhNhanID,
+          TenBN: benhNhan ? benhNhan.Ten : "Không tìm thấy bệnh nhân", // Lấy tên bệnh nhân nếu tìm thấy
+          NgayDat: dat.NgayDatKham,
+          TrangThai: dat.TrangThai,
+        });
+      }
+
+      return successResponse(req, res, { Datkham: datakham }, 200);
+    } catch (error) {
+      console.error(error); // Log lỗi để kiểm tra
+      return errorResponse(req, res, "Lỗi server", 500);
+    }
+  };
+
+  this.detailAppointment = async (req, res) => {
+    const { id } = req.params;
+    try {
+      console.log(id);
+      const appointment = await LichDatKham.findOne({ _id: id });
+
+      const BacSi = await NhanVien.findOne({ _id: appointment.BacSiID });
+      const BenhNhannew = await BenhNhan.findOne({
+        _id: appointment.BenhNhanID,
+      });
+      // const Khoanew = await Khoa.findOne({
+      //   _id: appointment.KhoaID,
+      // });
+
+      return successResponse(
+        req,
+        res,
+        {
+          detailDatkham: {
+            TenBN: BenhNhannew.Ten,
+            GioiTinh: BenhNhannew.GioiTinh,
+            MaBN: BenhNhannew._id,
+            TenBS: BacSi.HoTen,
+            NgayHen: appointment.NgayDatKham,
+            Ca: appointment.CaKham,
+            DiaChi: BenhNhannew.DiaChi,
+            TrieuChung: appointment.TrieuChung,
+            SDT: BenhNhannew.SDT,
+          },
+        },
+        200
+      );
+    } catch (error) {
+      console.error(error); // Log lỗi để kiểm tra
+      return errorResponse(req, res, "Lỗi server", 500);
+    }
+  };
   return this;
 }
 

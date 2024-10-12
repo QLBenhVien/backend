@@ -16,9 +16,8 @@ router.post(
   ReceptionistController.approveappointment
 );
 router.post(
-  "/cancelappointment/:appointmentID",
-  authJwt.verifyToken,
-  authorize.authorizeRole("LT"),
+  "/cancelappointment",
+
   ReceptionistController.cancelappointment
 );
 router.post(
@@ -26,6 +25,19 @@ router.post(
   authJwt.verifyToken,
   authorize.authorizeRole("LT"),
   ReceptionistController.updateAppointment
+);
+
+router.get(
+  "/getAlldatkham",
+  authJwt.verifyToken,
+  authorize.authorizeRole("LT"),
+  ReceptionistController.listLichdat
+);
+router.get(
+  "/detailDatkham/:id",
+  authJwt.verifyToken,
+  authorize.authorizeRole("LT"),
+  ReceptionistController.detailAppointment
 );
 
 module.exports = router;

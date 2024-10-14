@@ -6,12 +6,12 @@ const adminRoute = require("./admin.routes");
 const receptionistRoute = require("./receptionist.routes");
 const itSupportRoute = require("./itSupport.routes");
 
-const router = express.Router();
 
 router.use("/", authRoute);
 router.use("/user", userRoute);
 router.use("/admin", adminRoute);
 router.use("/itSupport", itSupportRoute);
 router.use("/receptionist", receptionistRoute);
+
 
 module.exports = router;

@@ -13,6 +13,7 @@ route.get("/me", authJwt.verifyToken, User.getMyAccountInfo);
 route.put("/updateMyAccountInfo", authJwt.verifyToken, User.updateMyAccountInfo);
 route.post("/resetpassword", authJwt.verifyToken, User.Resetpassword);
 
+
 // dang ky kham benh pages
 route.get("/dangkykhambenh/theongay", User.Theongay);
 route.post("/dangkykhambenh/datkham", User.Datkham);
@@ -34,7 +35,10 @@ route.get("/xemlichkham", authJwt.verifyToken, User.xemLichKham);
 // xem chi tiet lixh kham
 route.put("/xemchitietlichkham", authJwt.verifyToken, User.xemchitietLichKham);
 // tìm lịch khám của bác sĩ
-route.put("/timlichkham", User.timlichkham);
+route.put("/timlichkham", authJwt.verifyToken, User.timlichkham);
+//huy lich kham
+route.put("/huylichkham", authJwt.verifyToken, User.huylichdat);
+
 //cập nhật lịch khám
 route.put("/capnhatlichkham", authJwt.verifyToken, User.capNhatLichKham);
 //tìm bác sĩ

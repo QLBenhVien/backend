@@ -1,9 +1,12 @@
 const TaiKhoan = require("../models/account.model");
 const NhanVien = require("../models/NhanVien");
+
 const BenhNhan = require("../models/BenhNhan");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { successResponse, errorResponse } = require("../helpers/index");
+const express = require("express");
+const router = express.Router();
 
 function AuthController() {
 	this.login = async (req, res, next) => {
@@ -135,6 +138,7 @@ function AuthController() {
 	};
 
 	return this;
+
 }
 
 //tạo hồ sơ bệnh nhân

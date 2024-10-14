@@ -30,5 +30,6 @@ const verifyToken = (req, res, next) => {
 
 const authJwt = {
 	verifyToken: verifyToken,
+
 };
 module.exports = authJwt;

@@ -27,4 +27,17 @@ router.post(
 	ReceptionistController.updateAppointment
 );
 
+router.get(
+  "/getAlldatkham",
+  authJwt.verifyToken,
+  authorize.authorizeRole("LT"),
+  ReceptionistController.listLichdat
+);
+router.get(
+  "/detailDatkham/:id",
+  authJwt.verifyToken,
+  authorize.authorizeRole("LT"),
+  ReceptionistController.detailAppointment
+);
+
 module.exports = router;

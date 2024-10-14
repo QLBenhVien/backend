@@ -4,27 +4,27 @@ const authJwt = require("../../src/middleware/authJwt");
 const authorize = require("../../src/middleware/authorizeRole");
 
 router.post(
-  "/scheduleappointment",
-  authJwt.verifyToken,
-  authorize.authorizeRole("LT"),
-  ReceptionistController.scheduleappointment
+	"/scheduleappointment",
+	authJwt.verifyToken,
+	ReceptionistController.scheduleappointment
 );
 router.post(
-  "/approveappointment/:appointmentID",
-  authJwt.verifyToken,
-  authorize.authorizeRole("LT"),
-  ReceptionistController.approveappointment
+	"/approveappointment/:appointmentID",
+	authJwt.verifyToken,
+	authorize.authorizeRole("LT"),
+	ReceptionistController.approveappointment
 );
 router.post(
-  "/cancelappointment",
-
-  ReceptionistController.cancelappointment
+	"/cancelappointment/:appointmentID",
+	authJwt.verifyToken,
+	authorize.authorizeRole("LT"),
+	ReceptionistController.cancelappointment
 );
 router.post(
-  "/updateappointment/:appointmentID",
-  authJwt.verifyToken,
-  authorize.authorizeRole("LT"),
-  ReceptionistController.updateAppointment
+	"/updateappointment/:appointmentID",
+	authJwt.verifyToken,
+	authorize.authorizeRole("LT"),
+	ReceptionistController.updateAppointment
 );
 
 router.get(

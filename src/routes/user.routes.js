@@ -10,12 +10,9 @@ route.post("/dangnhap", User.dangnhap);
 route.get("/trangchu", User.home);
 
 route.get("/me", authJwt.verifyToken, User.getMyAccountInfo);
-route.put(
-  "/updateMyAccountInfo",
-  authJwt.verifyToken,
-  User.updateMyAccountInfo
-);
-route.put("/resetpassword", User.Resetpassword);
+route.put("/updateMyAccountInfo", authJwt.verifyToken, User.updateMyAccountInfo);
+route.post("/resetpassword", authJwt.verifyToken, User.Resetpassword);
+
 
 // dang ky kham benh pages
 route.get("/dangkykhambenh/theongay", User.Theongay);

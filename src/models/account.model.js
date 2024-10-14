@@ -10,6 +10,7 @@ const accountSchema = new mongoose.Schema({
     enum: ["KH", "BS", "LT", "IT"], // Danh sách các vai trò hợp lệ
     default: "KH",
   },
+
 });
 
 const TaiKhoan = mongoose.model("TaiKhoan", accountSchema);

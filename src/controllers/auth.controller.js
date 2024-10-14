@@ -106,6 +106,7 @@ function AuthController() {
     // Tạo bản ghi cho bệnh nhân
     const benhNhanNew = new BenhNhan({
       Ten,
+      UserName: username,
       DiaChi: DiaChi || null,
       CCCD: CCCD || null,
       GioiTinh: GioiTinh || null,
@@ -123,6 +124,7 @@ function AuthController() {
     // Trả về phản hồi thành công
     return successResponse(req, res, {
       id: saveUserNew.id,
+      username: saveUserNew.username,
       email: saveUserNew.email,
       role: saveUserNew.role,
       benhNhanId: saveBenhNhanNew._id, // Trả thêm thông tin về bệnh nhân

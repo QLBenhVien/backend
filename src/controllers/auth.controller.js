@@ -9,6 +9,7 @@ const express = require("express");
 const router = express.Router();
 
 function AuthController() {
+
 	this.login = async (req, res, next) => {
 		const { email, password } = req.body;
 

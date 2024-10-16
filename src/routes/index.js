@@ -11,7 +11,7 @@ const itSupportRoute = require("./itSupport.routes");
 router.use("/", authRoute);
 router.use("/user", userRoute);
 router.use("/admin", adminRoute);
-router.use("/doctor", doctorRouter);
+// router.use("/doctor", doctorRouter); chua xong
 router.use("/itSupport", itSupportRoute);
 router.use("/receptionist", receptionistRoute);
 

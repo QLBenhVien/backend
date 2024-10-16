@@ -11,6 +11,32 @@ const ChucVu = require("../models/ChucVu");
 const PhieuKham = require("../models/PhieuKham");
 
 function ReceptionistController() {
+  this.home = async (req, res) => {
+    try {
+      const receptionisterId = req.authenticatedUser.userId;
+      const infoNhanvien = await NhanVien.findOne({ MaTK: receptionisterId });
+      if (!infoNhanvien) {
+        return errorResponse(req, res, "Không tìm thấy nhân viên!", 404);
+      }
+      return successResponse(
+        req,
+        res,
+        {
+          message: "Thành công",
+          data: {
+            name: infoNhanvien.HoTen,
+            role: req.authenticatedUser,
+            gender: infoNhanvien.GioiTinh,
+            id: infoNhanvien._id,
+          },
+        },
+        200
+      );
+    } catch (error) {
+      console.error("Error when scheduling appointment: ", error);
+      return errorResponse(req, res, "Lỗi server", 500);
+    }
+  };
   // đặt lịch
   this.scheduleappointment = async (req, res, next) => {
     try {
@@ -118,17 +144,35 @@ function ReceptionistController() {
     try {
       const { id } = req.params;
       const receptionisterId = req.authenticatedUser.userId;
+      console.log(id);
 
-      // Kiểm tra tính hợp lệ của các ID
-      if (!validateObjectId(appointmentID, "Mã cuộc hẹn", res)) return;
-      // Kiểm tra xem MaBN có tồn tại trong bảng NhanVien hay không
-      const appointment = await LichDatKham.findById(appointmentID);
+      // Kiểm tra xem lịch khám có tồn tại không
+      const appointment = await LichDatKham.findOne({ _id: id });
       if (!appointment) {
         return errorResponse(req, res, "Lịch khám này không tồn tại", 404);
       }
 
+      // Lấy ngày khám từ lịch hẹn
+      const ngayDatKham = appointment.NgayDatKham;
+
+      // Tìm tất cả các lịch khám của bệnh nhân trong ngày hiện tại
+      const lichKhams = await LichDatKham.find({
+        BenhNhanID: appointment.BenhNhanID,
+        NgayDatKham: {
+          $gte: new Date(ngayDatKham.setHours(0, 0, 0, 0)), // Bắt đầu từ 00:00:00
+          $lt: new Date(ngayDatKham.setHours(23, 59, 59, 999)), // Kết thúc đến 23:59:59
+        },
+      });
+
+      // Tính số thứ tự khám mới
+      const soThuTuKham =
+        lichKhams.length > 0
+          ? Math.max(...lichKhams.map((lich) => lich.SoThuTuKham)) + 1
+          : 1;
+
       // Cập nhật trạng thái của lịch khám
       appointment.TrangThai = true;
+      appointment.SoThuTuKham = soThuTuKham; // Cập nhật số thứ tự khám
       await appointment.save();
 
       // Tạo phiếu khám nếu trạng thái là true
@@ -156,6 +200,7 @@ function ReceptionistController() {
         200
       );
     } catch (error) {
+      console.error(error); // Log lỗi để kiểm tra
       return errorResponse(req, res, "Lỗi server khi xác nhận lịch khám.");
     }
   };
@@ -165,16 +210,17 @@ function ReceptionistController() {
     try {
       const { id } = req.body;
       console.log(id);
-      // Kiểm tra tính hợp lệ của các ID
-      if (!validateObjectId(id, "Mã cuộc hẹn", res)) return;
-      // Kiểm tra xem MaBN có tồn tại trong bảng NhanVien hay không
-      const appointment = await LichDatKham.findById({ id });
+
+      // Kiểm tra xem lịch khám có tồn tại hay không
+      const appointment = await LichDatKham.findById(id);
       if (!appointment) {
-        return errorResponse(req, res, "Lịch khám này không tồn tại", 404);
+        return errorResponse(req, res, "Lịch khám này không tồn tại", 400);
       }
 
-      appointment.TrangThai = "canceled";
-      await appointment.save();
+      // Cập nhật trạng thái hủy
+      appointment.DaHuy = true; // Đánh dấu là đã hủy
+      await appointment.save(); // Lưu thay đổi vào cơ sở dữ liệu
+
       return successResponse(
         req,
         res,
@@ -184,6 +230,7 @@ function ReceptionistController() {
         200
       );
     } catch (error) {
+      console.error(error); // Log lỗi để kiểm tra
       return errorResponse(req, res, "Lỗi server khi xác nhận lịch khám.", 500);
     }
   };
@@ -235,7 +282,16 @@ function ReceptionistController() {
   // list all lich kham
   this.listLichdat = async (req, res) => {
     try {
-      const dataDatkham = await LichDatKham.find({ TrangThai: false });
+      // Lấy ngày hiện tại
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Đặt giờ, phút, giây, mili giây về 0 để so sánh chỉ theo ngày
+
+      // Tìm các lịch hẹn có NgayDatKham >= hôm nay và TrangThai là false
+      const dataDatkham = await LichDatKham.find({
+        TrangThai: false,
+        NgayDatKham: { $gte: today }, // Chỉ lấy lịch hẹn từ hôm nay trở đi
+        DaHuy: false,
+      });
 
       const datakham = [];
 

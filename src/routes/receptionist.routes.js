@@ -4,27 +4,27 @@ const authJwt = require("../../src/middleware/authJwt");
 const authorize = require("../../src/middleware/authorizeRole");
 
 router.post(
-	"/scheduleappointment",
-	authJwt.verifyToken,
-	ReceptionistController.scheduleappointment
+  "/scheduleappointment",
+  authJwt.verifyToken,
+  ReceptionistController.scheduleappointment
+);
+router.put(
+  "/approveappointment/:id",
+  authJwt.verifyToken,
+  authorize.authorizeRole("LT"),
+  ReceptionistController.approveappointment
+);
+router.put(
+  "/cancelappointment",
+  authJwt.verifyToken,
+  authorize.authorizeRole("LT"),
+  ReceptionistController.cancelappointment
 );
 router.post(
-	"/approveappointment/:appointmentID",
-	authJwt.verifyToken,
-	authorize.authorizeRole("LT"),
-	ReceptionistController.approveappointment
-);
-router.post(
-	"/cancelappointment/:appointmentID",
-	authJwt.verifyToken,
-	authorize.authorizeRole("LT"),
-	ReceptionistController.cancelappointment
-);
-router.post(
-	"/updateappointment/:appointmentID",
-	authJwt.verifyToken,
-	authorize.authorizeRole("LT"),
-	ReceptionistController.updateAppointment
+  "/updateappointment/:appointmentID",
+  authJwt.verifyToken,
+  authorize.authorizeRole("LT"),
+  ReceptionistController.updateAppointment
 );
 
 router.get(
@@ -38,6 +38,13 @@ router.get(
   authJwt.verifyToken,
   authorize.authorizeRole("LT"),
   ReceptionistController.detailAppointment
+);
+
+router.get(
+  "/home",
+  authJwt.verifyToken,
+  authorize.authorizeRole("LT"),
+  ReceptionistController.home
 );
 
 module.exports = router;

@@ -10,9 +10,12 @@ route.post("/dangnhap", User.dangnhap);
 route.get("/trangchu", User.home);
 
 route.get("/me", authJwt.verifyToken, User.getMyAccountInfo);
-route.put("/updateMyAccountInfo", authJwt.verifyToken, User.updateMyAccountInfo);
+route.put(
+  "/updateMyAccountInfo",
+  authJwt.verifyToken,
+  User.updateMyAccountInfo
+);
 route.post("/resetpassword", authJwt.verifyToken, User.Resetpassword);
-
 
 // dang ky kham benh pages
 route.get("/dangkykhambenh/theongay", User.Theongay);
@@ -24,6 +27,8 @@ route.get("/thongbao", authJwt.verifyToken, User.thongbao);
 route.post("/taohosobn", authJwt.verifyToken, User.createPatientProfile);
 //Tìm hồ sơ bệnh nhân (tìm theo cccd, email hoặc SĐT)
 route.get("/timhosobn", authJwt.verifyToken, User.findPatientProfile);
+// Lấy thông tin hồ sơ bệnh nhân
+route.get("/getHoso", authJwt.verifyToken, User.getAllinfoHS);
 //Cập nhật thông tin hồ sơ (với điều kiện nhập đúng cccd và sđt)
 route.put("/capnhathoso", authJwt.verifyToken, User.updatePatientProfile);
 //Đặt khám
@@ -43,6 +48,9 @@ route.put("/huylichkham", authJwt.verifyToken, User.huylichdat);
 route.put("/capnhatlichkham", authJwt.verifyToken, User.capNhatLichKham);
 //tìm bác sĩ
 route.get("/timkiemnhanvien", authJwt.verifyToken, User.timKiemNhanVien);
+
+//xem phieu kham
+route.put("/xemphieukham", authJwt.verifyToken, User.xemphieukham);
 
 //test tinh nang them lich kham
 route.put("/themlichkham", User.themlichlam);

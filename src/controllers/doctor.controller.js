@@ -26,6 +26,20 @@ function DoctorController() {
   this.getAllphieukham = async (req, res) => {
     const { id } = req.authenticatedUser.userId;
   };
-}
 
-module.exports = DoctorController();
+  this.listDoctors = async (req, res) => {
+    const { userId } = req.params;
+  };
+}
+const listDoctors = async (req, res) => {
+  try {
+    const { departmentId } = req.params;
+
+    let lstDoctors = await NhanVien.find({ MaKhoa: departmentId, MaCV: '6690fd36ff2ee427f702b83f' })
+
+    return successResponse(req, res, [...lstDoctors]);
+  } catch (error) {
+    return errorResponse(req, res, error.message);
+  }
+};
+module.exports = { listDoctors };

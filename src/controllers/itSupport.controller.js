@@ -9,8 +9,8 @@ const bcrypt = require("bcryptjs");
 const getAccountById = async (req, res) => {
 	try {
 		const { accountId } = req.query; // Lấy accountId từ query
-
-		const account = await TaiKhoan.findById(accountId);
+		console.log(req.query);
+		const account = await TaiKhoan.findOne({ email: accountId });
 		if (!account) {
 			return errorResponse(req, res, "Không tìm thấy tài khoản", 404);
 		}
@@ -100,10 +100,15 @@ const createNhanVien = async (req, res) => {
 // Lấy tất cả tài khoản nhân viên
 const allNhanViens = async (req, res) => {
 	try {
-		const lstNhanViens = await NhanVien.find({}).populate({
-			path: "MaCV",
-			select: "TenCV",
-		});
+		const lstNhanViens = await NhanVien.find({})
+			.populate({
+				path: "MaCV",
+				select: "TenCV",
+			})
+			.populate({
+				path: "MaTK",
+				select: "active",
+			});
 
 		return successResponse(req, res, { lstNhanViens });
 	} catch (error) {
@@ -182,13 +187,12 @@ const disableNhanVien = async (req, res) => {
 		console.log("Request received to disable employee:", req.body); // Log request body
 		const { MaTK } = req.body;
 
-		const nhanVien = await NhanVien.findOne({ MaTK: MaTK });
+		const nhanVien = await TaiKhoan.findOneAndUpdate({ _id: MaTK }, { active: false });
+		console.log("NhanVien:", nhanVien);
 		if (!nhanVien) {
 			return errorResponse(req, res, "Không tìm thấy nhân viên", 404);
 		}
-
-		nhanVien.active = false;
-		await nhanVien.save();
+		// await nhanVien.save();
 
 		return successResponse(req, res, {
 			message: "Nhân viên đã bị vô hiệu hóa thành công",
@@ -203,14 +207,13 @@ const disableNhanVien = async (req, res) => {
 const enableNhanVien = async (req, res) => {
 	try {
 		const { MaTK } = req.body;
-
-		const nhanVien = await NhanVien.findOne({ MaTK: MaTK });
-
+		// const nhanVien = await NhanVien.findOne({ MaTK: MaTK });
+		const nhanVien = await TaiKhoan.findOneAndUpdate({ _id: MaTK }, { active: true });
+		console.log("NhanVien:", nhanVien);
 		if (!nhanVien) {
 			return errorResponse(req, res, "Không tìm thấy nhân viên", 404);
 		}
-
-		nhanVien.active = true;
+		// nhanVien.active = true;
 		await nhanVien.save();
 
 		return successResponse(req, res, {

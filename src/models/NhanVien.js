@@ -5,7 +5,7 @@ const nhanvienSchema = new mongoose.Schema({
 	MaKhoa: { type: mongoose.Schema.Types.ObjectId, ref: "Khoa", default: null },
 	MaTK: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: "account",
+		ref: "TaiKhoan",
 		default: null,
 	},
 	HoTen: { type: String, default: null },
@@ -13,7 +13,7 @@ const nhanvienSchema = new mongoose.Schema({
 	DiaChi: { type: String, default: null },
 	GioiTinh: { type: String, default: null },
 	SDT: { type: String, default: null },
-	active: { type: Boolean, default: true },
+	// active: { type: Boolean, default: true },
 });
 
 const NhanVien = mongoose.model("NhanVien", nhanvienSchema);

@@ -9,8 +9,8 @@ const bcrypt = require("bcryptjs");
 const getAccountById = async (req, res) => {
 	try {
 		const { accountId } = req.query; // Lấy accountId từ query
-
-		const account = await TaiKhoan.findById(accountId);
+		console.log(req.query);
+		const account = await TaiKhoan.findOne({ email: accountId });
 		if (!account) {
 			return errorResponse(req, res, "Không tìm thấy tài khoản", 404);
 		}
@@ -28,7 +28,7 @@ const getAccountById = async (req, res) => {
 // tạo mới tài khoản nhân viên
 const createNhanVien = async (req, res) => {
 	try {
-		const { email, password, HoTen, DiaChi, GioiTinh, SDT, MaCV, MaKhoa, role } = req.body;
+		const { email, password, HoTen, DiaChi, GioiTinh, SDT, MaCV, Khoa, role } = req.body;
 		console.log(req.body);
 		// Kiểm tra vai trò hợp lệ
 		const validRoles = ["IT", "BS", "LT", "XN"];
@@ -81,7 +81,7 @@ const createNhanVien = async (req, res) => {
 			GioiTinh,
 			SDT,
 			MaCV: chucVu._id,
-			MaKhoa,
+			MaKhoa: Khoa,
 		});
 
 		// Lưu nhân viên vào cơ sở dữ liệu
@@ -100,10 +100,15 @@ const createNhanVien = async (req, res) => {
 // Lấy tất cả tài khoản nhân viên
 const allNhanViens = async (req, res) => {
 	try {
-		const lstNhanViens = await NhanVien.find({}).populate({
-			path: "MaCV",
-			select: "TenCV",
-		});
+		const lstNhanViens = await NhanVien.find({})
+			.populate({
+				path: "MaCV",
+				select: "TenCV",
+			})
+			.populate({
+				path: "MaTK",
+				select: "active",
+			});
 
 		return successResponse(req, res, { lstNhanViens });
 	} catch (error) {
@@ -114,7 +119,7 @@ const allNhanViens = async (req, res) => {
 const updateNhanVien = async (req, res) => {
 	try {
 		const { MaTK, role, ...updateData } = req.body;
-
+		console.log(req.body);
 		const dataRoles = {
 			IT: "IT",
 			BS: "Bác Sĩ",
@@ -141,6 +146,7 @@ const updateNhanVien = async (req, res) => {
 		Object.assign(nhanVien, {
 			...updateData,
 			MaCV: chucVu._id,
+			MaKhoa: updateData.Khoa,
 		});
 		const updatedNhanVien = await nhanVien.save();
 
@@ -182,13 +188,12 @@ const disableNhanVien = async (req, res) => {
 		console.log("Request received to disable employee:", req.body); // Log request body
 		const { MaTK } = req.body;
 
-		const nhanVien = await NhanVien.findOne({ MaTK: MaTK });
+		const nhanVien = await TaiKhoan.findOneAndUpdate({ _id: MaTK }, { active: false });
+		console.log("NhanVien:", nhanVien);
 		if (!nhanVien) {
 			return errorResponse(req, res, "Không tìm thấy nhân viên", 404);
 		}
-
-		nhanVien.active = false;
-		await nhanVien.save();
+		// await nhanVien.save();
 
 		return successResponse(req, res, {
 			message: "Nhân viên đã bị vô hiệu hóa thành công",
@@ -203,14 +208,13 @@ const disableNhanVien = async (req, res) => {
 const enableNhanVien = async (req, res) => {
 	try {
 		const { MaTK } = req.body;
-
-		const nhanVien = await NhanVien.findOne({ MaTK: MaTK });
-
+		// const nhanVien = await NhanVien.findOne({ MaTK: MaTK });
+		const nhanVien = await TaiKhoan.findOneAndUpdate({ _id: MaTK }, { active: true });
+		console.log("NhanVien:", nhanVien);
 		if (!nhanVien) {
 			return errorResponse(req, res, "Không tìm thấy nhân viên", 404);
 		}
-
-		nhanVien.active = true;
+		// nhanVien.active = true;
 		await nhanVien.save();
 
 		return successResponse(req, res, {

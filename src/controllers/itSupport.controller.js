@@ -28,7 +28,7 @@ const getAccountById = async (req, res) => {
 // tạo mới tài khoản nhân viên
 const createNhanVien = async (req, res) => {
 	try {
-		const { email, password, HoTen, DiaChi, GioiTinh, SDT, MaCV, MaKhoa, role } = req.body;
+		const { email, password, HoTen, DiaChi, GioiTinh, SDT, MaCV, Khoa, role } = req.body;
 		console.log(req.body);
 		// Kiểm tra vai trò hợp lệ
 		const validRoles = ["IT", "BS", "LT", "XN"];
@@ -81,7 +81,7 @@ const createNhanVien = async (req, res) => {
 			GioiTinh,
 			SDT,
 			MaCV: chucVu._id,
-			MaKhoa,
+			MaKhoa: Khoa,
 		});
 
 		// Lưu nhân viên vào cơ sở dữ liệu
@@ -119,7 +119,7 @@ const allNhanViens = async (req, res) => {
 const updateNhanVien = async (req, res) => {
 	try {
 		const { MaTK, role, ...updateData } = req.body;
-
+		console.log(req.body);
 		const dataRoles = {
 			IT: "IT",
 			BS: "Bác Sĩ",
@@ -146,6 +146,7 @@ const updateNhanVien = async (req, res) => {
 		Object.assign(nhanVien, {
 			...updateData,
 			MaCV: chucVu._id,
+			MaKhoa: updateData.Khoa,
 		});
 		const updatedNhanVien = await nhanVien.save();
 

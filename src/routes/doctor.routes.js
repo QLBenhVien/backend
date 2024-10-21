@@ -1,4 +1,6 @@
-let router = require("express").Router();
-const authJwt = require("../../src/middleware/authJwt");
-const authorize = require("../../src/middleware/authorizeRole");
+const express = require("express");
+
+const router = express.Router();
 const doctorController = require("../controllers/doctor.controller");
+router.get("/listdoctor/:departmentId", doctorController.listDoctors); 
+module.exports = router;

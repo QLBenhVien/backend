@@ -41,11 +41,11 @@ function ReceptionistController() {
   this.scheduleappointment = async (req, res, next) => {
     try {
       const { MaBS, MaBN, MaKhoa, TrieuChung, NgayDatKham } = req.body;
-      const receptionisterId = req.authenticatedUser.userId;
+      // const receptionisterId = req.authenticatedUser.userId;
 
       // Kiểm tra tính hợp lệ của các ID
       if (!validateObjectId(MaKhoa, "Mã khoa", res)) return;
-      if (!validateObjectId(MaBN, "Mã bệnh nhân", res)) return;
+      // if (!validateObjectId(MaBN, "Mã bệnh nhân", res)) return;
       if (!validateObjectId(MaBS, "Mã bác sĩ", res)) return;
 
       // Kiểm tra NgayDatKham có hợp lệ và là ngày trong tương lai không
@@ -61,16 +61,33 @@ function ReceptionistController() {
           .json({ message: "Ngày đặt khám phải là ngày trong tương lai" });
       }
 
+      let benhNhanIdNew;
+      if (MaBN == null) {
+        const { TenBN, NgaySinhBN, GioiTinhBN, SDTBN, DiaChiBN } = req.body;
+        const existingPatient = await BenhNhan.findOne({ SDT: SDTBN });
+        if (existingPatient) {
+          return res.status(200).json({ message: "Số điện thoại này đã tồn tại" });
+        } 
+        let benhNhanNew = new BenhNhan({
+          Ten: TenBN,
+          NgaySinh: NgaySinhBN,
+          GioiTinh: GioiTinhBN,
+          SDT: SDTBN,
+          DiaChi: DiaChiBN,
+        });
+        await benhNhanNew.save();
+        benhNhanIdNew = benhNhanNew._id;
+      }
       // Kiểm tra sự tồn tại của MaKhoa, MaBN, và MaBS
       const khoa = await Khoa.findById(MaKhoa);
       if (!khoa) {
         return errorResponse(req, res, "Khoa không tồn tại", 404);
       }
 
-      const benhNhan = await BenhNhan.findById(MaBN);
-      if (!benhNhan) {
-        return errorResponse(req, res, "Bệnh nhân không tồn tại", 404);
-      }
+      // const benhNhan = await BenhNhan.findById(MaBN);
+      // if (!benhNhan) {
+      //   return errorResponse(req, res, "Bệnh nhân không tồn tại", 404);
+      // }
 
       let hasBS = false;
       if (MaBS && MaBS.trim() !== "") {
@@ -98,6 +115,15 @@ function ReceptionistController() {
       let sttKham = lastLichKham ? lastLichKham.SoThuTuKham + 1 : 1;
 
       // Tạo lịch đặt khám mới
+      const lichDatKhamMoi = new LichDatKham({
+        BacSiID: hasBS ? MaBS : null,
+        KhoaID: MaKhoa,
+        BenhNhanID: MaBN == null ? benhNhanIdNew : MaBN,
+        // NhanVienTaoLich: receptionisterId,
+        TrieuChung: TrieuChung,
+        NgayDatKham: date,
+        SoThuTuKham: sttKham,
+      });
       // const lichDatKhamMoi = new LichDatKham({
       //   BacSiID: hasBS ? MaBS : null,
       //   KhoaID: MaKhoa,
@@ -114,7 +140,7 @@ function ReceptionistController() {
         const phieuKhamMoi = new PhieuKham({
           MaPhieu: `PK${Date.now()}`,
           MaDanhSach: lichDatKhamMoi._id, // Tham chiếu đến lịch đặt khám vừa tạo
-          MaBenhNhan: MaBN,
+          MaBenhNhan: MaBN == null ? benhNhanIdNew : MaBN,
           MaNhanVien: receptionisterId, // Nhân viên tạo phiếu khám
           TenPhieu: "Phiếu khám bệnh", // Tên phiếu
           SoThuTuKham: sttKham,
@@ -290,22 +316,25 @@ function ReceptionistController() {
         TrangThai: false,
         NgayDatKham: { $gte: today }, // Chỉ lấy lịch hẹn từ hôm nay trở đi
         DaHuy: false,
-      });
+      }).populate({
+        path: "BenhNhanID", // Trường liên kết với bảng BenhNhan
+        select: "Ten", // Chỉ lấy trường Ten của BenhNhan
+      });;
 
-      const datakham = [];
+      // const datakham = [];
 
-      for (const dat of dataDatkham) {
-        const benhNhan = await BenhNhan.findOne({ _id: dat.BenhNhanID });
-        datakham.push({
-          id: dat._id,
-          idBn: dat.BenhNhanID,
-          TenBN: benhNhan ? benhNhan.Ten : "Không tìm thấy bệnh nhân", // Lấy tên bệnh nhân nếu tìm thấy
-          NgayDat: dat.NgayDatKham,
-          TrangThai: dat.TrangThai,
-        });
-      }
+      // for (const dat of dataDatkham) {
+      //   const benhNhan = await BenhNhan.findOne({ _id: dat.BenhNhanID });
+      //   datakham.push({
+      //     id: dat._id,
+      //     idBn: dat.BenhNhanID,
+      //     TenBN: benhNhan ? benhNhan.Ten : "Không tìm thấy bệnh nhân", // Lấy tên bệnh nhân nếu tìm thấy
+      //     NgayDat: dat.NgayDatKham,
+      //     TrangThai: dat.TrangThai,
+      //   });
+      // }
 
-      return successResponse(req, res, { Datkham: datakham }, 200);
+      return successResponse(req, res, { Datkham: dataDatkham }, 200);
     } catch (error) {
       console.error(error); // Log lỗi để kiểm tra
       return errorResponse(req, res, "Lỗi server", 500);
@@ -341,6 +370,54 @@ function ReceptionistController() {
             TrieuChung: appointment.TrieuChung,
             SDT: BenhNhannew.SDT,
           },
+        },
+        200
+      );
+    } catch (error) {
+      console.error(error); // Log lỗi để kiểm tra
+      return errorResponse(req, res, "Lỗi server", 500);
+    }
+  };
+
+  this.listAppointment = async (req, res) => {
+    let { dateStart, dateEnd } = req.body; // Lấy từ body
+
+    // Nếu không truyền dateStart và dateEnd, thiết lập mặc định
+    const currentDate = new Date();
+
+    if (!dateStart && !dateEnd) {
+      const currentDate = new Date();
+      dateStart = currentDate.toISOString().split("T")[0]; // Ngày hiện tại
+    
+      const futureDate = new Date();
+      futureDate.setDate(currentDate.getDate() + 7);
+      dateEnd = futureDate.toISOString().split("T")[0]; // 7 ngày sau
+    } else if (!dateStart) {
+      dateStart = new Date(dateEnd); // Nếu chỉ có dateEnd, sử dụng nó để tính dateStart
+      dateStart.setDate(dateStart.getDate() - 7); // Lấy 7 ngày trước dateEnd
+      dateStart = dateStart.toISOString().split("T")[0];
+    } else if (!dateEnd) {
+      dateEnd = currentDate.toISOString().split("T")[0]; // Nếu chỉ có dateStart, sử dụng ngày hiện tại cho dateEnd
+    }
+
+    try {
+      // Tìm lịch hẹn trong khoảng thời gian
+      const listAppointment = await LichDatKham.find({
+        TrangThai: true,
+        NgayDatKham: {
+          $gte: new Date(dateStart),
+          $lte: new Date(dateEnd),
+        },
+      }).populate({
+        path: "BenhNhanID", // Trường liên kết với bảng BenhNhan
+        select: "Ten", // Chỉ lấy trường Ten của BenhNhan
+      });
+
+      return successResponse(
+        req,
+        res,
+        {
+          listAppointment,
         },
         200
       );

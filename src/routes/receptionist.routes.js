@@ -5,7 +5,6 @@ const authorize = require("../../src/middleware/authorizeRole");
 
 router.post(
   "/scheduleappointment",
-  authJwt.verifyToken,
   ReceptionistController.scheduleappointment
 );
 router.put(
@@ -29,8 +28,8 @@ router.post(
 
 router.get(
   "/getAlldatkham",
-  authJwt.verifyToken,
-  authorize.authorizeRole("LT"),
+  // authJwt.verifyToken,
+  // authorize.authorizeRole("LT"),
   ReceptionistController.listLichdat
 );
 router.get(
@@ -46,5 +45,7 @@ router.get(
   authorize.authorizeRole("LT"),
   ReceptionistController.home
 );
+
+router.post("/listAppointment", ReceptionistController.listAppointment);
 
 module.exports = router;

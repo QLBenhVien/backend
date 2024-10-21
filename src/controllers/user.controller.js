@@ -840,11 +840,15 @@ module.exports.timKiemNhanVien = async (req, res) => {
 // xem phieu kham
 module.exports.xemphieukham = async (req, res) => {
   try {
-    const id = req.body;
+    const { id } = req.body;
     console.log(id);
+
     const phieukham = await PhieuKham.findOne({ MaDanhSach: id });
     const benhnhan = await BenhNhan.findOne({ _id: phieukham.MaBenhNhan });
+    console.log(benhnhan);
+    console.log(phieukham);
     const bacsi = await NhanVien.findOne({ _id: phieukham.MaNhanVien });
+    console.log(bacsi);
     return successResponse(
       req,
       res,
@@ -859,6 +863,7 @@ module.exports.xemphieukham = async (req, res) => {
           tenbs: bacsi.HoTen,
           ngaykham: phieukham.NgayKham,
           cakham: phieukham.CaKham,
+          sttKham: phieukham.SoThuTuKham,
         },
       },
       200

@@ -124,8 +124,17 @@ function ReceptionistController() {
         NgayDatKham: date,
         SoThuTuKham: sttKham,
       });
+      // const lichDatKhamMoi = new LichDatKham({
+      //   BacSiID: hasBS ? MaBS : null,
+      //   KhoaID: MaKhoa,
+      //   BenhNhanID: MaBN,
+      //   NhanVienTaoLich: receptionisterId,
+      //   TrieuChung: TrieuChung,
+      //   NgayDatKham: date,
+      //   SoThuTuKham: sttKham,
+      // });
 
-      await lichDatKhamMoi.save();
+      // await lichDatKhamMoi.save();
 
       if (lichDatKhamMoi.TrangThai) {
         const phieuKhamMoi = new PhieuKham({
@@ -163,16 +172,15 @@ function ReceptionistController() {
       const receptionisterId = req.authenticatedUser.userId;
       console.log(id);
 
-      // Kiểm tra xem lịch khám có tồn tại không
       const appointment = await LichDatKham.findOne({ _id: id });
       if (!appointment) {
         return errorResponse(req, res, "Lịch khám này không tồn tại", 404);
       }
 
-      // Lấy ngày khám từ lịch hẹn
+      const bacsi = await NhanVien.findOne({ _id: appointment.BacSiID });
+
       const ngayDatKham = appointment.NgayDatKham;
 
-      // Tìm tất cả các lịch khám của bệnh nhân trong ngày hiện tại
       const lichKhams = await LichDatKham.find({
         BenhNhanID: appointment.BenhNhanID,
         NgayDatKham: {
@@ -197,7 +205,7 @@ function ReceptionistController() {
         MaPhieu: `PK${Date.now()}`,
         MaDanhSach: appointment._id,
         MaBenhNhan: appointment.BenhNhanID,
-        MaNhanVien: receptionisterId,
+        MaNhanVien: bacsi._id,
         TenPhieu: "Phiếu khám bệnh",
         SoThuTuKham: appointment.SoThuTuKham,
         NgayKham: appointment.NgayDatKham,

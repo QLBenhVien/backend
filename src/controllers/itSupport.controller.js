@@ -128,7 +128,6 @@ const updateNhanVien = async (req, res) => {
 		};
 
 		const roleName = dataRoles[role];
-
 		const chucVu = await ChucVu.findOne({
 			TenCV: roleName,
 		});
@@ -158,30 +157,6 @@ const updateNhanVien = async (req, res) => {
 		return errorResponse(req, res, error.message);
 	}
 };
-
-// Vô hiệu hóa tài khoản nhân viên
-// const disableNhanVien = async (req, res) => {
-// 	try {
-// 		const { MaTK } = req.body;
-// 		const nhanVien = await NhanVien.findOne({ MaTK: MaTK });
-
-// 		if (!nhanVien) {
-// 			return errorResponse(req, res, "Không tìm thấy nhân viên", 404);
-// 		}
-
-// 		nhanVien.active = false;
-// 		await nhanVien.save();
-
-// 		return successResponse(req, res, {
-// 			message: "Nhân viên đã bị vô hiệu hóa thành công",
-// 			nhanVien,
-// 		});
-// 	} catch (error) {
-// 		return errorResponse(req, res, error.message);
-// 	}
-// };
-
-// Kích hoạt lại tài khoản nhân viên
 
 const disableNhanVien = async (req, res) => {
 	try {
@@ -231,7 +206,10 @@ const enableNhanVien = async (req, res) => {
 // Lấy tất cả tài khoản bệnh nhân
 const allBenhNhans = async (req, res) => {
 	try {
-		const lstBenhNhans = await BenhNhan.find({});
+		const lstBenhNhans = await BenhNhan.find({}).populate({
+			path: "accountId",
+			select: "active",
+		});
 		return successResponse(req, res, { lstBenhNhans });
 	} catch (error) {
 		return errorResponse(req, res, error.message);
@@ -240,10 +218,10 @@ const allBenhNhans = async (req, res) => {
 
 const updateBenhNhan = async (req, res) => {
 	try {
-		const { MaTK, ...updateData } = req.body;
-
-		const benhNhan = await BenhNhan.findOne({ MaTK: MaTK });
-
+		const { accountID, ...updateData } = req.body;
+		console.log("profileBN", req.body);
+		const benhNhan = await BenhNhan.findOne({ accountID: accountID });
+		console.log("benhNhan", benhNhan);
 		if (!benhNhan) {
 			return errorResponse(req, res, "Không tìm thấy bệnh nhân", 404);
 		}
@@ -259,46 +237,42 @@ const updateBenhNhan = async (req, res) => {
 		return errorResponse(req, res, error.message);
 	}
 };
-
-// Vô hiệu hóa tài khoản bệnh nhân
+// disable bệnh nhân
 const disableBenhNhan = async (req, res) => {
 	try {
-		const { MaTK } = req.body;
-		const benhNhan = await BenhNhan.findOne({ MaTK: MaTK });
+		console.log("Request received to disable employee:", req.body);
+		const { accountId } = req.body;
 
-		if (!benhNhan) {
-			return errorResponse(req, res, "Không tìm thấy bệnh nhân", 404);
+		const benhnhan = await TaiKhoan.findOneAndUpdate({ _id: accountId }, { active: false });
+		console.log("benhnhan:", benhnhan);
+		if (!benhnhan) {
+			return errorResponse(req, res, "Không tìm thấy nhân viên", 404);
 		}
-
-		benhNhan.active = false;
-		await benhNhan.save();
+		// await benhnhan.save();
 
 		return successResponse(req, res, {
-			message: "Bệnh nhân đã bị vô hiệu hóa thành công",
-			benhNhan,
+			message: "Nhân viên đã bị vô hiệu hóa thành công",
+			benhnhan,
 		});
 	} catch (error) {
+		console.error("Error disabling employee:", error); // Log error
 		return errorResponse(req, res, error.message);
-		i;
 	}
 };
 
-// Kích hoạt lại tài khoản bệnh nhân
 const enableBenhNhan = async (req, res) => {
 	try {
-		const { MaTK } = req.body;
-
-		const benhNhan = await BenhNhan.findOne({ MaTK: MaTK });
-
+		const { accountId } = req.body;
+		const benhNhan = await TaiKhoan.findOneAndUpdate({ _id: accountId }, { active: true });
+		console.log("BenhNhan:", benhNhan);
 		if (!benhNhan) {
-			return errorResponse(req, res, "Không tìm thấy bệnh nhân", 404);
+			return errorResponse(req, res, "Không tìm thấy nhân viên", 404);
 		}
-
-		benhNhan.active = true;
+		// benhNhan.active = true;
 		await benhNhan.save();
 
 		return successResponse(req, res, {
-			message: "Bệnh nhân đã được kích hoạt lại thành công",
+			message: "Nhân viên đã được kích hoạt lại thành công",
 			benhNhan,
 		});
 	} catch (error) {

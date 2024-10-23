@@ -81,8 +81,9 @@ const createNhanVien = async (req, res) => {
 			GioiTinh,
 			SDT,
 			MaCV: chucVu._id,
-			MaKhoa: Khoa,
 		});
+
+		if (Khoa) newNhanVien.MaKhoa = Khoa;
 
 		// Lưu nhân viên vào cơ sở dữ liệu
 		const savedNhanVien = await newNhanVien.save();

@@ -34,7 +34,7 @@ const createNhanVien = async (req, res) => {
 		const validRoles = ["IT", "BS", "LT", "XN"];
 
 		const dataRoles = {
-			IT: "IT",
+			IT: "Quản trị viên",
 			BS: "Bác Sĩ",
 			LT: "Lễ Tân",
 			XN: "Xét Nghiệm",
@@ -122,7 +122,7 @@ const updateNhanVien = async (req, res) => {
 		const { MaTK, role, ...updateData } = req.body;
 		console.log(req.body);
 		const dataRoles = {
-			IT: "IT",
+			IT: "Quản trị viên3",
 			BS: "Bác Sĩ",
 			LT: "Lễ Tân",
 			XN: "Xét Nghiệm",

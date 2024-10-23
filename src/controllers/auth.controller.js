@@ -77,7 +77,8 @@ function AuthController() {
 			}
 
 			const salt = await bcrypt.genSalt(10);
-			const hashPassword = await bcrypt.hash(res.body.password, salt);
+			// const hashPassword = await bcrypt.hash(res.body.password, salt);
+			const hashPassword = await bcrypt.hash(req.body.password, salt);
 
 			// Tạo tài khoản mới và mã hóa mật khẩu
 			const userNew = new TaiKhoan({ ...req.body, password: hashPassword });
@@ -89,7 +90,7 @@ function AuthController() {
 				if (role === "KH") {
 					// Nếu role là null, tạo một Bệnh nhân mới
 					const newBenhNhan = new BenhNhan({
-						Ten: "",
+						Ten: username,
 						Email: email,
 						accountId: saveUserNew._id, // MaTK là _id của tài khoản vừa tạo
 					});

@@ -66,8 +66,10 @@ function ReceptionistController() {
         const { TenBN, NgaySinhBN, GioiTinhBN, SDTBN, DiaChiBN } = req.body;
         const existingPatient = await BenhNhan.findOne({ SDT: SDTBN });
         if (existingPatient) {
-          return res.status(200).json({ message: "Số điện thoại này đã tồn tại" });
-        } 
+          return res
+            .status(200)
+            .json({ message: "Số điện thoại này đã tồn tại" });
+        }
         let benhNhanNew = new BenhNhan({
           Ten: TenBN,
           NgaySinh: NgaySinhBN,
@@ -319,7 +321,7 @@ function ReceptionistController() {
       }).populate({
         path: "BenhNhanID", // Trường liên kết với bảng BenhNhan
         select: "Ten", // Chỉ lấy trường Ten của BenhNhan
-      });;
+      });
 
       // const datakham = [];
 
@@ -379,6 +381,8 @@ function ReceptionistController() {
     }
   };
 
+  const dayjs = require("dayjs");
+
   this.listAppointment = async (req, res) => {
     let { dateStart, dateEnd } = req.body; // Lấy từ body
 
@@ -388,7 +392,7 @@ function ReceptionistController() {
     if (!dateStart && !dateEnd) {
       const currentDate = new Date();
       dateStart = currentDate.toISOString().split("T")[0]; // Ngày hiện tại
-    
+
       const futureDate = new Date();
       futureDate.setDate(currentDate.getDate() + 7);
       dateEnd = futureDate.toISOString().split("T")[0]; // 7 ngày sau
@@ -402,14 +406,13 @@ function ReceptionistController() {
 
     try {
       // Tìm lịch hẹn trong khoảng thời gian
-      const listAppointment = await LichDatKham.find({
-        TrangThai: true,
-        NgayDatKham: {
+      const listAppointment = await PhieuKham.find({
+        NgayKham: {
           $gte: new Date(dateStart),
           $lte: new Date(dateEnd),
         },
       }).populate({
-        path: "BenhNhanID", // Trường liên kết với bảng BenhNhan
+        path: "MaBenhNhan", // Trường liên kết với bảng BenhNhan
         select: "Ten", // Chỉ lấy trường Ten của BenhNhan
       });
 
@@ -426,6 +429,43 @@ function ReceptionistController() {
       return errorResponse(req, res, "Lỗi server", 500);
     }
   };
+
+  this.chitietphieukham = async (req, res) => {
+    const { id } = req.params;
+    try {
+      console.log(id);
+      const appointment = await PhieuKham.findOne({ _id: id })
+        .populate({
+          path: "MaBenhNhan", // Trường liên kết với bảng BenhNhan
+          select: "Ten GioiTinh NgaySinh", // Chỉ lấy trường Ten của BenhNhan
+        })
+        .populate({
+          path: "MaNhanVien",
+          select: "HoTen",
+        });
+
+      // const BacSi = await NhanVien.findOne({ _id: appointment.BacSiID });
+      // const BenhNhannew = await BenhNhan.findOne({
+      //   _id: appointment.BenhNhanID,
+      // });
+      // const Khoanew = await Khoa.findOne({
+      //   _id: appointment.KhoaID,
+      // });
+      console.log(appointment);
+      return successResponse(
+        req,
+        res,
+        {
+          appointment,
+        },
+        200
+      );
+    } catch (error) {
+      console.error(error); // Log lỗi để kiểm tra
+      return errorResponse(req, res, "Lỗi server", 500);
+    }
+  };
+
   return this;
 }
 

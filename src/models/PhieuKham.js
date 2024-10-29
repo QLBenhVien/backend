@@ -1,3 +1,4 @@
+const { type } = require("express/lib/response");
 const mongoose = require("mongoose");
 
 const phieuKhamSchema = new mongoose.Schema({
@@ -26,6 +27,7 @@ const phieuKhamSchema = new mongoose.Schema({
   CaKham: { type: Number, default: 1 },
   SoThuTuKham: { type: Number, required: true },
   ChanDoan: { type: String, default: null },
+  TrangThai: { type: Boolean, default: false },
   Thuoc: [
     {
       TenThuoc: { type: String, default: null }, // Medicine name

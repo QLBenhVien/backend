@@ -3,10 +3,7 @@ const ReceptionistController = require("../controllers/receptionist.controller")
 const authJwt = require("../../src/middleware/authJwt");
 const authorize = require("../../src/middleware/authorizeRole");
 
-router.post(
-  "/scheduleappointment",
-  ReceptionistController.scheduleappointment
-);
+router.post("/scheduleappointment", ReceptionistController.scheduleappointment);
 router.put(
   "/approveappointment/:id",
   authJwt.verifyToken,
@@ -28,8 +25,8 @@ router.post(
 
 router.get(
   "/getAlldatkham",
-  // authJwt.verifyToken,
-  // authorize.authorizeRole("LT"),
+  authJwt.verifyToken,
+  authorize.authorizeRole("LT"),
   ReceptionistController.listLichdat
 );
 router.get(
@@ -47,5 +44,6 @@ router.get(
 );
 
 router.post("/listAppointment", ReceptionistController.listAppointment);
+router.get("/chitietphieukham/:id", ReceptionistController.chitietphieukham);
 
 module.exports = router;

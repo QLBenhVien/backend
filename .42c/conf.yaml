@@ -1,0 +1,3 @@
+apis:
+  src/docs/swagger.json:
+    alias: cloudagent-apis

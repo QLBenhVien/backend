@@ -30,10 +30,13 @@ const phieuKhamSchema = new mongoose.Schema({
   TrangThai: { type: Boolean, default: false },
   Thuoc: [
     {
-      TenThuoc: { type: String, default: null }, // Medicine name
-      HamLuong: { type: String, default: null }, // Dosage or concentration (e.g., 500mg)
-      DonViTinh: { type: String, default: null }, // Unit (e.g., "viên")
-      SoLuong: { type: Number, default: null }, // Quantity prescribed
+      Mathuoc: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Thuoc",
+        required: true,
+      },
+      SoLuong: { type: Number, required: true }, // Số lượng thuốc
+      Cachdung: { type: String, required: true }, // Cách dùng thuốc cụ thể hơn nếu cần
     },
   ],
 });

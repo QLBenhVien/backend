@@ -11,6 +11,7 @@ const LichDatKham = require("../models/LichDatKham");
 const ChucVu = require("../models/ChucVu");
 const DanhSachKham = require("../models/DanhSachKham");
 const PhieuKham = require("../models/PhieuKham");
+const DanhGia = require('../models/DanhGia');
 module.exports.hello = async (req, res) => {
   res.json("day laf duong link /user");
 };
@@ -616,7 +617,7 @@ module.exports.datKham = async (req, res) => {
   }
 };
 
-//xem thông tin lịch đặt khám (tìm từ CCCD,SĐT và Email)
+//xem thông tin lịch đặt khám 
 module.exports.xemLichKham = async (req, res) => {
   try {
     const userId = req.authenticatedUser?.userId;
@@ -894,3 +895,123 @@ module.exports.themlichlam = async (req, res) => {
 };
 
 // ket thuc
+
+//đánh giá
+module.exports.themDanhGia = async (req, res) => {
+  try {
+    // Kiểm tra dữ liệu đầu vào
+    const { HoTen, Email, SDT, TieuDe, NoiDung } = req.body;
+
+    // Kiểm tra xem tất cả các trường có được điền đầy đủ không
+    if (!HoTen || !Email || !SDT || !TieuDe || !NoiDung) {
+      return res.status(400).json({ message: "Vui lòng điền đầy đủ thông tin!" });
+    }
+
+    // Xác thực Họ tên: không được chứa ký tự đặc biệt
+    const namePattern = /^[\p{L}\s]+$/u; // Cho phép tất cả các ký tự chữ (bao gồm tiếng Việt) và khoảng trắng
+    if (!namePattern.test(HoTen)) {
+      return res.status(400).json({ message: "Họ tên không được kèm ký tự đặc biệt!" });
+    }
+    // Xác thực Email: phải có @gmail.com
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/; // Kiểm tra định dạng email
+    if (!emailPattern.test(Email)) {
+      return res.status(400).json({ message: "Email phải có định dạng @gmail.com!" });
+    }
+
+    // Xác thực Số điện thoại: phải là 10 số
+    const phonePattern = /^\d{10}$/; // Kiểm tra định dạng số điện thoại
+    if (!phonePattern.test(SDT)) {
+      return res.status(400).json({ message: "Số điện thoại phải có 10 số!" });
+    }
+
+    // Xác thực Nội dung: không dài quá 500 ký tự
+    if (NoiDung.length > 500) {
+      return res.status(400).json({ message: "Nội dung không được dài quá 500 ký tự!" });
+    }
+
+    // Tạo đánh giá mới
+    const danhGiaMoi = new DanhGia({
+      HoTen,
+      Email,
+      SDT,
+      TieuDe,
+      NoiDung,
+    });
+
+    // Lưu đánh giá vào cơ sở dữ liệu
+    await danhGiaMoi.save();
+
+    // Phản hồi thành công
+    return res.status(201).json({
+      message: "Đánh giá đã được thêm thành công.",
+      danhGia: danhGiaMoi,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+  }
+};
+//xem thông tin bác sĩ
+module.exports.xemThongTinNhanVien = async (req, res) => {
+  try {
+    const userId = req.authenticatedUser?.userId; // Lấy userId từ token
+
+    // Kiểm tra dữ liệu đầu vào
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: "ID bác sĩ không hợp lệ." });
+    }
+
+    // Tìm bác sĩ theo ID và populate Chức vụ và Khoa
+    const nhanVien = await NhanVien.findById(id)
+      .populate("MaCV", "TenCV") // Lấy thông tin Chức vụ
+      .populate("MaKhoa", "Tenkhoa"); // Lấy thông tin Khoa
+
+    if (!nhanVien) {
+      return res.status(404).json({ message: "Không tìm thấy bác sĩ." });
+    }
+
+    // Phản hồi với thông tin bác sĩ cùng TenCV và TenKhoa
+    return res.status(200).json({
+      message: "Thông tin bác sĩ đã được tìm thấy.",
+      nhanVien: {
+        _id: nhanVien._id,
+        HoTen: nhanVien.HoTen,
+        Email: nhanVien.Email,
+        DiaChi: nhanVien.DiaChi,
+        GioiTinh: nhanVien.GioiTinh,
+        SDT: nhanVien.SDT,
+        ChucVu: nhanVien.MaCV ? nhanVien.MaCV.TenCV : null, // Lấy TenCV
+        Khoa: nhanVien.MaKhoa ? nhanVien.MaKhoa.Tenkhoa : null // Lấy Tenkhoa
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+  }
+};
+
+//list ra danh sách nhân viên
+module.exports.listAllNhanVien = async (req, res) => {
+  try {
+    // Tìm tất cả nhân viên và populate thông tin chức vụ
+    const nhanVienList = await NhanVien.find()
+      .populate("MaCV", "TenCV") // Lấy thông tin chức vụ
+      .select("HoTen MaCV"); // Chỉ chọn HoTen và MaCV
+
+    // Xử lý dữ liệu để chỉ lấy tên và chức vụ
+    const result = nhanVienList.map(nhanVien => ({
+      HoTen: nhanVien.HoTen,
+      ChucVu: nhanVien.MaCV ? nhanVien.MaCV.TenCV : null // Lấy tên chức vụ
+    }));
+
+    // Phản hồi với danh sách nhân viên
+    return res.status(200).json({
+      message: "Danh sách nhân viên đã được tìm thấy.",
+      nhanVienList: result
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+  }
+};

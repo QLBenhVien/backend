@@ -54,4 +54,12 @@ route.put("/xemphieukham", authJwt.verifyToken, User.xemphieukham);
 
 //test tinh nang them lich kham
 route.put("/themlichkham", User.themlichlam);
+
+// Thêm đánh giá
+route.post("/danhgia", User.themDanhGia);
+//xem thông tin bác sĩ
+route.get("/xemnhanvien/:id", authJwt.verifyToken, User.xemThongTinNhanVien);
+//list danh sách nhân viên
+route.get("/listallnhanvien", User.listAllNhanVien);
+
 module.exports = route;

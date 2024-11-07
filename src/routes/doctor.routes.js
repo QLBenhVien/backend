@@ -8,7 +8,7 @@ router.get("/detailPhieukham/:id", doctorController.detailPhieukham);
 router.put("/updatePhieukham/:id", doctorController.updatePhieukham);
 router.put("/endPhieukham/:id", doctorController.endPhieukham);
 router.get("/thuoc/:ten", doctorController.goiyThuoc);
-router.put("/themlichlam/:id", doctorController.themlichlam);
+router.put("/themlichlam", doctorController.themlichlam);
 // check laij
 // router.get("/listdoctor/:departmentId", doctorController.listDoctors);
 module.exports = router;

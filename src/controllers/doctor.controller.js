@@ -276,7 +276,7 @@ module.exports.thongtinlichlam = async (req, res) => {
   try {
     console.log(id);
     const Nhanvien = await NhanVien.findOne({ MaTK: id });
-    const danhsachkham = await DanhSachKham.findOne({ MaNV: Nhanvien._id });
+    const danhsachkham = await DanhSachKham.find({ MaNV: Nhanvien._id });
     res.status(200).json({ danhsachkham });
   } catch (error) {
     res.status(500).json({ error: "internal sever error" });

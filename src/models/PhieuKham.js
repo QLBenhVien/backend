@@ -26,8 +26,10 @@ const phieuKhamSchema = new mongoose.Schema({
   },
   CaKham: { type: Number, default: 1 },
   SoThuTuKham: { type: Number, required: true },
+  TrieuChung: { type: String, default: null },
   ChanDoan: { type: String, default: null },
   TrangThai: { type: Boolean, default: false },
+  LoiDan: { type: String, default: null },
   Thuoc: [
     {
       Mathuoc: {
@@ -35,6 +37,7 @@ const phieuKhamSchema = new mongoose.Schema({
         ref: "Thuoc",
         required: true,
       },
+      DVT: { type: String, default: "Vien" },
       SoLuong: { type: Number, required: true }, // Số lượng thuốc
       Cachdung: { type: String, required: true }, // Cách dùng thuốc cụ thể hơn nếu cần
     },

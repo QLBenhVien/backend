@@ -53,5 +53,4 @@ route.get("/timkiemnhanvien", authJwt.verifyToken, User.timKiemNhanVien);
 route.put("/xemphieukham", authJwt.verifyToken, User.xemphieukham);
 
 //test tinh nang them lich kham
-route.put("/themlichkham", User.themlichlam);
 module.exports = route;

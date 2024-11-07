@@ -11,6 +11,7 @@ const LichDatKham = require("../models/LichDatKham");
 const ChucVu = require("../models/ChucVu");
 const DanhSachKham = require("../models/DanhSachKham");
 const PhieuKham = require("../models/PhieuKham");
+const Hoso = require("../models/Hoso");
 module.exports.hello = async (req, res) => {
   res.json("day laf duong link /user");
 };
@@ -332,9 +333,13 @@ module.exports.createPatientProfile = async (req, res) => {
       accountId: account._id, // Lưu accountId từ TaiKhoan
     });
 
+    const hosobenhnhan = new Hoso({
+      MaBenhNhan: newPatient._id,
+    });
+
     // Lưu hồ sơ bệnh nhân mới
     const savedPatient = await newPatient.save();
-
+    const hosonew = await hosobenhnhan.save();
     // Phản hồi
     res.status(201).json({
       message: "Hồ sơ bệnh nhân đã được tạo thành công",
@@ -423,8 +428,10 @@ module.exports.updatePatientProfile = async (req, res) => {
       return res.status(400).json({ message: "Yêu cầu đăng nhập!" });
     }
 
-    // Tìm hồ sơ bệnh nhân theo ID tài khoản
+    // Tìm  bệnh nhân theo ID tài khoản
     let patient = await BenhNhan.findOne({ accountId: userId });
+
+    // tìm thông tin hồ sơ bệnh án theo ID của bệnh nhân
 
     if (!patient) {
       return res.status(404).json({
@@ -444,6 +451,17 @@ module.exports.updatePatientProfile = async (req, res) => {
     patient.Email = data.Email || patient.Email;
     patient.Job = data.Job || patient.Job;
     patient.BHYT = data.BHYT || patient.BHYT;
+
+    // timf thong tin ho how benh nhan
+    let hosobenhan = await Hoso.findOne({ MaBenhNhan: patient._id });
+    if (!hosobenhan) {
+      const hosobenhanNew = new Hoso({
+        MaBenhNhan: patient._id,
+      });
+
+      const hosobenhanNewsave = await hosobenhanNew.save();
+      console.log("tao ho so thanh cong");
+    }
 
     // Lưu hồ sơ đã cập nhật
     const updatedPatient = await patient.save();
@@ -873,24 +891,3 @@ module.exports.xemphieukham = async (req, res) => {
     res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
   }
 };
-
-//test them danh sach kham cua bac si , day la test khoong phai cua user
-module.exports.themlichlam = async (req, res) => {
-  try {
-    const { MaNV, NgayKham, Ca } = req.body;
-    const DanhSachKhams = new DanhSachKham({
-      MaNV: MaNV,
-      NgayKham: NgayKham,
-      Ca: Ca,
-    });
-    const saveDanhSachKham = await DanhSachKhams.save();
-    res.status(200).json({
-      message: "Đăng ký lịch khám thành công",
-      DanhSachKham: saveDanhSachKham,
-    });
-  } catch (error) {
-    res.status(500).json({ error: "internal sever error" });
-  }
-};
-
-// ket thuc

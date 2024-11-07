@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
   GioiTinh: { type: String, default: null },
   SDT: { type: String, default: null }, //
   Email: { type: String, default: null }, //
-  Job: { type: String, default: null }, 
+  Job: { type: String, default: null },
   BHYT: { type: Boolean, default: false }, //
   // active: { type: Boolean, default: true }, //
   accountId: {

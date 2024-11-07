@@ -7,6 +7,7 @@ const BenhNhan = require("../models/BenhNhan");
 const PhieuKham = require("../models/PhieuKham");
 const Thuoc = require("../models/Thuoc.model");
 const DanhSachKham = require("../models/DanhSachKham");
+const BenhAn = require("../models/BenhAn");
 // function DoctorController() {
 //   this.home = async (req, res) => {
 //     const { id } = req.authenticatedUser.userId;
@@ -83,9 +84,9 @@ module.exports.getAllhsba = async (req, res) => {
 
 // 2. chi tiet ho so benh an
 module.exports.detailHoso = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params; //id benh nhan
   try {
-    const information = await BenhNhan.findById({ id });
+    const information = await BenhNhan.findOne({ _id: id });
     if (!information) {
       return errorResponse(req, res, "không tìm thấy thông tin bệnh nhân", 404);
     }
@@ -98,9 +99,10 @@ module.exports.detailHoso = async (req, res) => {
       SDT: information.SDT,
     };
 
-    // const benhan = await
-
-    return successResponse(req, res, { benhnhan }, 200);
+    const maHS = await Hosobenhan.findOne({ MaBenhNhan: id })._id;
+    const benhan = await BenhAn.find({ MaHS: maHS });
+    console.log(benhan);
+    return successResponse(req, res, { benhnhan, benhan }, 200);
   } catch (error) {
     return errorResponse(req, res, "Lỗi hệ thống!", 500);
   }
@@ -109,22 +111,34 @@ module.exports.detailHoso = async (req, res) => {
 //  --------------------page phieu kham benh----------------------------------
 
 module.exports.getPhieukham = async (req, res) => {
+  const id = req.authenticatedUser.userId;
   const { option } = req.params;
   let listPK;
 
   try {
+    const Nhanvien = await NhanVien.findOne({ MaTK: id }); // Sử dụng findOne để lấy một đối tượng
+
     if (option === "false") {
-      listPK = await PhieuKham.find({ TrangThai: false }).populate({
+      listPK = await PhieuKham.find({
+        TrangThai: false,
+        MaNhanVien: Nhanvien._id,
+      }).populate({
         path: "MaBenhNhan",
         select: "Ten",
       });
     } else if (option === "true") {
-      listPK = await PhieuKham.find({ TrangThai: true }).populate({
+      listPK = await PhieuKham.find({
+        TrangThai: true,
+        MaNhanVien: Nhanvien._id,
+      }).populate({
         path: "MaBenhNhan",
         select: "Ten",
       });
     } else {
-      listPK = await PhieuKham.find({ TrangThai: false }).populate({
+      listPK = await PhieuKham.find({
+        TrangThai: false,
+        MaNhanVien: Nhanvien._id,
+      }).populate({
         path: "MaBenhNhan",
         select: "Ten",
       });
@@ -283,6 +297,14 @@ module.exports.thongtinlichlam = async (req, res) => {
     const Nhanvien = await NhanVien.findOne({ MaTK: id });
     const danhsachkham = await DanhSachKham.find({ MaNV: Nhanvien._id });
     res.status(200).json({ danhsachkham });
+  } catch (error) {
+    res.status(500).json({ error: "internal sever error" });
+  }
+};
+
+// xem danh sach benh nhan
+module.exports.getListbenhnhan = async () => {
+  try {
   } catch (error) {
     res.status(500).json({ error: "internal sever error" });
   }

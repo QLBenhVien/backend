@@ -11,6 +11,12 @@ router.get(
   doctorController.getAllhsba
 );
 router.get(
+  "/detailHoso/:id",
+  authJwt.verifyToken,
+  authorize.authorizeRole("BS"),
+  doctorController.detailHoso
+);
+router.get(
   "/getPhieukham/:option",
   authJwt.verifyToken,
   authorize.authorizeRole("BS"),

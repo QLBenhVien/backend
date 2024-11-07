@@ -272,9 +272,10 @@ module.exports.themlichlam = async (req, res) => {
   }
 };
 module.exports.thongtinlichlam = async (req, res) => {
-  const { id } = req.authenticatedUser.userId;
+  const id = req.authenticatedUser.userId;
   try {
-    const danhsachkham = await DanhSachKham.find({ MaNV: id });
+    console.log(id);
+    const danhsachkham = await DanhSachKham.findOne({ MaNV: id });
     res.status(200).json({ danhsachkham });
   } catch (error) {
     res.status(500).json({ error: "internal sever error" });

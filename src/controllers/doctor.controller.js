@@ -6,6 +6,7 @@ const Hosobenhan = require("../models/Hoso");
 const BenhNhan = require("../models/BenhNhan");
 const PhieuKham = require("../models/PhieuKham");
 const Thuoc = require("../models/Thuoc.model");
+const DanhSachKham = require("../models/DanhSachKham");
 // function DoctorController() {
 //   this.home = async (req, res) => {
 //     const { id } = req.authenticatedUser.userId;
@@ -266,6 +267,15 @@ module.exports.themlichlam = async (req, res) => {
       message: "Đăng ký lịch khám thành công",
       DanhSachKham: saveDanhSachKham,
     });
+  } catch (error) {
+    res.status(500).json({ error: "internal sever error" });
+  }
+};
+module.exports.thongtinlichlam = async (req, res) => {
+  const { id } = req.authenticatedUser.userId;
+  try {
+    const danhsachkham = await DanhSachKham.find({ MaNV: id });
+    res.status(200).json({ danhsachkham });
   } catch (error) {
     res.status(500).json({ error: "internal sever error" });
   }

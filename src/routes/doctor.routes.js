@@ -41,6 +41,12 @@ router.put(
   authorize.authorizeRole("BS"),
   doctorController.themlichlam
 );
+router.get(
+  "/lichlam",
+  authJwt.verifyToken,
+  authorize.authorizeRole("BS"),
+  doctorController.thongtinlichlam
+);
 // check laij
 // router.get("/listdoctor/:departmentId", doctorController.listDoctors);
 module.exports = router;

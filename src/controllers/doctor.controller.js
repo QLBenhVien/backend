@@ -287,7 +287,7 @@ module.exports.themlichlam = async (req, res) => {
         message: "Ca này đã được đăng ký trước đó",
       });
     }
-
+/
     // Nếu ca chưa có, tiến hành lưu ca mới
     const DanhSachKhams = new DanhSachKham({
       MaNV: Nhanvien ? Nhanvien._id : null,

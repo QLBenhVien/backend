@@ -1,0 +1,34 @@
+
+### 
+GET http://localhost:8080/doctor/getAllhoso
+
+###  phan phieu kham
+GET http://localhost:8080/doctor/getPhieukham/null
+###
+GET http://localhost:8080/doctor/detailPhieukham/671f36b160bffcb192f801ca
+
+###
+GET  http://localhost:8080/doctor/thuoc/para
+
+### Bác sĩ kê xong đơn thuốc và nhấn lưu thuốc
+PUT http://localhost:8080/doctor/updatePhieukham/671f36b160bffcb192f801ca
+Content-Type: application/json
+
+{
+  "TrieuChung": "Đau đầu, chóng mặt",
+  "ChanDoan": "Thiếu máu",
+  "LoiDan": "Uống nhiều nước, nghỉ ngơi",
+  "Thuoc": [
+    {
+      "MaThuoc": "6716190fb5ab976661e442ea",
+      "SoLuong": 2,
+      "Cachdung": "ăn trước khi uống"
+    },
+    {
+      "MaThuoc": "67207b100b98284bc2f63be4",
+      "SoLuong": 2,
+      "Cachdung": "ăn trước khi uống"
+    }
+  ]
+}
+

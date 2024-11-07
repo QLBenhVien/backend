@@ -160,10 +160,16 @@ module.exports.detailPhieukham = async (req, res) => {
   const { id } = req.params;
   try {
     console.log(id);
-    const detail = await PhieuKham.findOne({ _id: id }).populate({
-      path: "MaBenhNhan",
-      select: "Ten NgaySinh DiaChi GioiTinh SDT",
-    });
+    const detail = await PhieuKham.findOne({ _id: id })
+      .populate({
+        path: "MaBenhNhan",
+        select: "Ten NgaySinh DiaChi GioiTinh SDT",
+      })
+      .populate({
+        path: "Thuoc.MaThuoc",
+        select: "tenthuoc",
+      });
+
     if (!detail) {
       return errorResponse(req, res, "Không tìm thấy phiếu", 404);
     }
@@ -171,7 +177,7 @@ module.exports.detailPhieukham = async (req, res) => {
     return successResponse(
       req,
       res,
-      { detail, links: { acceptPhieu: "/doctor/endphieu" } },
+      { detail: detail, links: { acceptPhieu: "/doctor/endphieu" } },
       200
     );
   } catch (error) {
@@ -180,6 +186,7 @@ module.exports.detailPhieukham = async (req, res) => {
   }
 };
 
+// xong
 module.exports.updatePhieukham = async (req, res) => {
   const { id } = req.params;
   const { TrieuChung, ChanDoan, LoiDan, Thuoc } = req.body;

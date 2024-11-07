@@ -246,10 +246,11 @@ module.exports.endPhieukham = async (req, res) => {
 
 //test them danh sach kham cua bac si , day la test khoong phai cua user
 module.exports.themlichlam = async (req, res) => {
+  const { id } = req.params;
   try {
-    const { MaNV, NgayKham, Ca } = req.body;
+    const { NgayKham, Ca } = req.body;
     const DanhSachKhams = new DanhSachKham({
-      MaNV: MaNV,
+      MaNV: id,
       NgayKham: NgayKham,
       Ca: Ca,
     });

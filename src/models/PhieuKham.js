@@ -35,9 +35,8 @@ const phieuKhamSchema = new mongoose.Schema({
       MaThuoc: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Thuoc",
-      },
-      TenThuoc: { type: String, required: true },
-      DVT: { type: String, default: "Vien" },
+      },  
+      DVT: { type: String, required: true },
       SoLuong: { type: Number, required: true }, // Số lượng thuốc
       Cachdung: { type: String, required: true }, // Cách dùng thuốc cụ thể hơn nếu cần
     },

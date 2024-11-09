@@ -9,7 +9,7 @@ Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJJ
 GET http://localhost:8080/doctor/detailPhieukham/671f36b160bffcb192f801ca
 
 ###
-GET  http://localhost:8080/doctor/thuoc/para
+GET  http://localhost:8080/doctor/thuoc/pa
 
 ### Bác sĩ kê xong đơn thuốc và nhấn lưu thuốc
 PUT http://localhost:8080/doctor/updatePhieukham/671f36b160bffcb192f801ca

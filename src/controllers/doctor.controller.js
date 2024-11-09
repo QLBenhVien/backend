@@ -201,7 +201,6 @@ module.exports.detailPhieukham = async (req, res) => {
   }
 };
 
-// xong
 module.exports.updatePhieukham = async (req, res) => {
   const { id } = req.params;
   const { TrieuChung, ChanDoan, LoiDan, Thuoc } = req.body;

@@ -201,7 +201,6 @@ module.exports.detailPhieukham = async (req, res) => {
   }
 };
 
-// xong
 module.exports.updatePhieukham = async (req, res) => {
   const { id } = req.params;
   const { TrieuChung, ChanDoan, LoiDan, Thuoc } = req.body;
@@ -267,15 +266,29 @@ module.exports.themlichlam = async (req, res) => {
   try {
     const { NgayKham, Ca } = req.body;
     console.log(NgayKham, "Ngaykham");
-    const Nhanvien = await NhanVien.findOne({ MaTK: id }); // Sử dụng findOne để lấy một đối tượng
+
+    const Nhanvien = await NhanVien.findOne({ MaTK: id }); // Tìm nhân viên
     if (!Nhanvien) {
       return res.status(404).json({ error: "Nhân viên không tồn tại" });
     }
+
+    // Kiểm tra xem ca đã được đăng ký chưa
+    const existingShift = await DanhSachKham.findOne({ NgayKham, Ca });
+
+    if (existingShift) {
+      // Nếu ca đã có lịch khám, trả về thông báo lỗi
+      return res.status(400).json({
+        message: "Ca này đã được đăng ký trước đó",
+      });
+    }
+    //
+    // Nếu ca chưa có, tiến hành lưu ca mới
     const DanhSachKhams = new DanhSachKham({
       MaNV: Nhanvien ? Nhanvien._id : null,
       NgayKham: NgayKham,
       Ca: Ca,
     });
+
     const saveDanhSachKham = await DanhSachKhams.save();
     res.status(200).json({
       message: "Đăng ký lịch khám thành công",

@@ -34,12 +34,12 @@ router.put(
   authorize.authorizeRole("BS"),
   doctorController.updatePhieukham
 );
-router.put(
-  "/endPhieukham/:id",
-  authJwt.verifyToken,
-  authorize.authorizeRole("BS"),
-  doctorController.endPhieukham
-);
+// router.put(
+//   "/endPhieukham/:id",
+//   authJwt.verifyToken,
+//   authorize.authorizeRole("BS"),
+//   doctorController.endPhieukham
+// );
 router.get("/thuoc/:ten", doctorController.goiyThuoc);
 router.put(
   "/themlichlam",

@@ -10,6 +10,8 @@ const BenhNhan = require("../models/BenhNhan");
 const ChucVu = require("../models/ChucVu");
 const PhieuKham = require("../models/PhieuKham");
 
+const { generateAndUploadPDF } = require("../services/pdf/pdfGenerator");
+
 function ReceptionistController() {
   this.home = async (req, res) => {
     try {
@@ -180,14 +182,13 @@ function ReceptionistController() {
       }
 
       const bacsi = await NhanVien.findOne({ _id: appointment.BacSiID });
-
       const ngayDatKham = appointment.NgayDatKham;
 
       const lichKhams = await LichDatKham.find({
         BenhNhanID: appointment.BenhNhanID,
         NgayDatKham: {
-          $gte: new Date(ngayDatKham.setHours(0, 0, 0, 0)), // Bắt đầu từ 00:00:00
-          $lt: new Date(ngayDatKham.setHours(23, 59, 59, 999)), // Kết thúc đến 23:59:59
+          $gte: new Date(ngayDatKham.setHours(0, 0, 0, 0)),
+          $lt: new Date(ngayDatKham.setHours(23, 59, 59, 999)),
         },
       });
 
@@ -199,7 +200,7 @@ function ReceptionistController() {
 
       // Cập nhật trạng thái của lịch khám
       appointment.TrangThai = true;
-      appointment.SoThuTuKham = soThuTuKham; // Cập nhật số thứ tự khám
+      appointment.SoThuTuKham = soThuTuKham;
       await appointment.save();
 
       // Tạo phiếu khám nếu trạng thái là true
@@ -215,6 +216,28 @@ function ReceptionistController() {
 
       await phieuKhamMoi.save();
 
+      // Tạo và tải file PDF lên Cloudinary
+      const benhnhan = await BenhNhan.findOne({
+        _id: appointment.BenhNhanID,
+      });
+      const khoa = await Khoa.findOne({ _id: appointment.KhoaID });
+      const pdfData = {
+        tenbenhnhan: benhnhan.Ten,
+        gioitinh: benhnhan.GioiTinh,
+        diachi: benhnhan.DiaChi,
+        ngaysinh: benhnhan.NgaySinh,
+        khoa: khoa.Tenkhoa,
+        ngaydatkham: appointment.NgayDatKham.toLocaleDateString(),
+        tenbacsi: bacsi.HoTen,
+        stt: phieuKhamMoi.SoThuTuKham,
+        ca: appointment.CaKham,
+        trieuchung: appointment.TrieuChung,
+      };
+
+      const pdfUrl = await generateAndUploadPDF(pdfData);
+      phieuKhamMoi.pdf_url = pdfUrl;
+      await phieuKhamMoi.save();
+
       return successResponse(
         req,
         res,
@@ -222,13 +245,13 @@ function ReceptionistController() {
           message:
             "Lịch khám đã được xác nhận thành công và phiếu khám đã được tạo.",
           lichDatKham: appointment,
-          phieuKham: phieuKhamMoi, // Trả về phiếu khám đã tạo
+          phieuKham: phieuKhamMoi,
         },
         200
       );
     } catch (error) {
-      console.error(error); // Log lỗi để kiểm tra
-      return errorResponse(req, res, "Lỗi server khi xác nhận lịch khám.");
+      console.error(error);
+      return errorResponse(req, res, "Lỗi server khi xác nhận lịch khám.", 500);
     }
   };
 

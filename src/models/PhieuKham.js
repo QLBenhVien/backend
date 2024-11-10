@@ -41,6 +41,7 @@ const phieuKhamSchema = new mongoose.Schema({
       Cachdung: { type: String, required: null }, // Cách dùng thuốc cụ thể hơn nếu cần
     },
   ],
+  pdf_url: { type: String, default: null },
 });
 
 const PhieuKham = mongoose.model("PhieuKham", phieuKhamSchema);

@@ -136,7 +136,6 @@ module.exports.getPhieukham = async (req, res) => {
       });
     } else {
       listPK = await PhieuKham.find({
-        TrangThai: false,
         MaNhanVien: Nhanvien._id,
       }).populate({
         path: "MaBenhNhan",
@@ -154,6 +153,7 @@ module.exports.getPhieukham = async (req, res) => {
       tinhTrang: phieu.TrangThai,
     }));
 
+    console.log(thongtinphieu);
     return successResponse(
       req,
       res,
@@ -213,6 +213,7 @@ module.exports.updatePhieukham = async (req, res) => {
         ChanDoan: ChanDoan,
         LoiDan: LoiDan,
         Thuoc: Thuoc,
+        TrangThai: true,
       },
       { new: true }
     );
@@ -220,13 +221,7 @@ module.exports.updatePhieukham = async (req, res) => {
     if (!Phieu) {
       return errorResponse(req, res, "Không tìm thấy phiếu khám", 404);
     }
-    return successResponse(
-      req,
-      res,
-      Phieu,
-
-      200
-    );
+    return successResponse(req, res, Phieu, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Lỗi hệ thống!", 500);
@@ -246,25 +241,25 @@ module.exports.goiyThuoc = async (req, res) => {
   }
 };
 
-module.exports.endPhieukham = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const phieukham = await PhieuKham.findByIdAndUpdate(
-      id,
-      {
-        TrangThai: true,
-      },
-      { new: true }
-    );
-    if (!phieuKham) {
-      return res.status(404).json({ message: "Không tìm thấy phiếu khám" });
-    }
-    return successResponse(req, res, phieukham, 200);
-  } catch (error) {
-    console.error(error);
-    return errorResponse(req, res, "Lỗi hệ thống!", 500);
-  }
-};
+// module.exports.endPhieukham = async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const phieukham = await PhieuKham.findByIdAndUpdate(
+//       id,
+//       {
+//         TrangThai: true,
+//       },
+//       { new: true }
+//     );
+//     if (!phieuKham) {
+//       return res.status(404).json({ message: "Không tìm thấy phiếu khám" });
+//     }
+//     return successResponse(req, res, phieukham, 200);
+//   } catch (error) {
+//     console.error(error);
+//     return errorResponse(req, res, "Lỗi hệ thống!", 500);
+//   }
+// };
 
 //test them danh sach kham cua bac si , day la test khoong phai cua user
 module.exports.themlichlam = async (req, res) => {

@@ -882,6 +882,7 @@ module.exports.xemphieukham = async (req, res) => {
           ngaykham: phieukham.NgayKham,
           cakham: phieukham.CaKham,
           sttKham: phieukham.SoThuTuKham,
+          url: phieukham.pdf_url,
         },
       },
       200

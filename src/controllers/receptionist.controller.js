@@ -9,6 +9,7 @@ const NhanVien = require("../models/NhanVien");
 const BenhNhan = require("../models/BenhNhan");
 const ChucVu = require("../models/ChucVu");
 const PhieuKham = require("../models/PhieuKham");
+const Thuoc = require("../models/Thuoc.model");
 
 const { generateAndUploadPDF } = require("../services/pdf/pdfGenerator");
 
@@ -138,7 +139,7 @@ function ReceptionistController() {
       //   SoThuTuKham: sttKham,
       // });
 
-      // await lichDatKhamMoi.save();
+      await lichDatKhamMoi.save();
 
       if (lichDatKhamMoi.TrangThai) {
         const phieuKhamMoi = new PhieuKham({
@@ -438,6 +439,9 @@ function ReceptionistController() {
       }).populate({
         path: "MaBenhNhan", // Trường liên kết với bảng BenhNhan
         select: "Ten", // Chỉ lấy trường Ten của BenhNhan
+      }).populate({
+        path: "MaHoaDon", // Trường liên kết với bảng BenhNhan
+        select: "TrangThaiThanhToan", // Chỉ lấy trường Ten của BenhNhan
       });
 
       return successResponse(
@@ -481,6 +485,42 @@ function ReceptionistController() {
         res,
         {
           appointment,
+        },
+        200
+      );
+    } catch (error) {
+      console.error(error); // Log lỗi để kiểm tra
+      return errorResponse(req, res, "Lỗi server", 500);
+    }
+  };
+
+  this.paymentForExamination = async (req, res) => {
+    const { appointmentId } = req.params;
+    const exchangeRate = 23500; // Tỷ giá hối đoái từ VNĐ sang USD (Ví dụ: 1 USD = 23,500 VNĐ)
+
+    try {
+      const appointment = await PhieuKham.findOne({ _id: appointmentId }).populate('Thuoc.Mathuoc');
+
+      if (!appointment) {
+        return res.status(404).json({ message: "Phiếu khám không tồn tại" });
+      }
+    
+      let totalAmountVND = 150000;
+    
+      for (const item of appointment.Thuoc) {
+        const drug = item.Mathuoc; 
+    
+        totalAmountVND += drug.dongia * item.SoLuong; 
+      }
+       // Chuyển đổi sang USD
+      const totalAmountUSD = Math.round(totalAmountVND / exchangeRate);
+
+      return successResponse(
+        req,
+        res,
+        {
+          totalAmountVND,
+          totalAmountUSD
         },
         200
       );

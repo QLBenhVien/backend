@@ -7,6 +7,7 @@ const departmentRoute = require("./department.routes");
 const doctorRouter = require("./doctor.routes");
 const router = express.Router();
 const receptionistRoute = require("./receptionist.routes");
+const paymentRoute = require("./payment.routes");
 const itSupportRoute = require("./itSupport.routes");
 
 router.use("/", authRoute);
@@ -15,6 +16,7 @@ router.use("/admin", adminRoute);
 router.use("/department", departmentRoute);
 router.use("/doctor", doctorRouter);  
 router.use("/itSupport", itSupportRoute);
-router.use("/receptionist", receptionistRoute);
+router.use("/receptionist", receptionistRoute); 
+router.use("/payment", paymentRoute); 
 
 module.exports = router;

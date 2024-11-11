@@ -2,6 +2,9 @@ const express = require("express");
 
 const router = express.Router();
 const doctorController = require("../controllers/doctor.controller");
+router.get("/listdoctor/:departmentId", doctorController.listDoctors); 
+router.post("/available-doctors", doctorController.listAvailableDoctors);
+
 router.get("/getAllhoso", doctorController.getAllhsba);
 router.get("/getPhieukham/:option", doctorController.getPhieukham);
 router.get("/detailPhieukham/:id", doctorController.detailPhieukham);

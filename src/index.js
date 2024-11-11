@@ -3,7 +3,8 @@ const app = express();
 const bodyParser = require("body-parser"); // unistall
 const route = require("./routes");
 const cors = require("cors");
-const connectDB = require('./database/mongoose'); 
+const connectDB = require('./database/mongoose');
+const { createOrder } = require('./paypal'); // Nhập hàm createOrder 
 require("dotenv").config();
 // Middleware để phân tích cú pháp yêu cầu có nội dung JSON
 app.use(bodyParser.json());
@@ -14,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.use("/", route);
-
+app.post('/api/paypal/order', createOrder);
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./docs/swagger.json');
 

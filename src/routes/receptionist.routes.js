@@ -40,10 +40,11 @@ router.get(
   "/home",
   authJwt.verifyToken,
   authorize.authorizeRole("LT"),
-  ReceptionistController.home
+  ReceptionistController.home 
 );
 
 router.post("/listAppointment", ReceptionistController.listAppointment);
 router.get("/chitietphieukham/:id", ReceptionistController.chitietphieukham);
+router.get("/paymentforexamination/:appointmentId", ReceptionistController.paymentForExamination);
 
 module.exports = router;

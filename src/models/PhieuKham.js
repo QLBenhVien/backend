@@ -29,6 +29,11 @@ const phieuKhamSchema = new mongoose.Schema({
   TrieuChung: { type: String, default: null },
   ChanDoan: { type: String, default: null },
   TrangThai: { type: Boolean, default: false },
+  MaHoaDon: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "HoaDon", // Tham chiếu đến mô hình HoaDon
+    default: null, // Giá trị mặc định là null
+  }, 
   LoiDan: { type: String, default: null },
   Thuoc: [
     {

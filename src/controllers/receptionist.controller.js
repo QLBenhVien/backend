@@ -11,6 +11,8 @@ const ChucVu = require("../models/ChucVu");
 const PhieuKham = require("../models/PhieuKham");
 const Thuoc = require("../models/Thuoc.model");
 
+const { generateAndUploadPDF } = require("../services/pdf/pdfGenerator");
+
 function ReceptionistController() {
   this.home = async (req, res) => {
     try {
@@ -169,6 +171,7 @@ function ReceptionistController() {
     }
   };
 
+  // da co link pdf
   this.approveappointment = async (req, res) => {
     try {
       const { id } = req.params;
@@ -181,14 +184,13 @@ function ReceptionistController() {
       }
 
       const bacsi = await NhanVien.findOne({ _id: appointment.BacSiID });
-
       const ngayDatKham = appointment.NgayDatKham;
 
       const lichKhams = await LichDatKham.find({
         BenhNhanID: appointment.BenhNhanID,
         NgayDatKham: {
-          $gte: new Date(ngayDatKham.setHours(0, 0, 0, 0)), // Bắt đầu từ 00:00:00
-          $lt: new Date(ngayDatKham.setHours(23, 59, 59, 999)), // Kết thúc đến 23:59:59
+          $gte: new Date(ngayDatKham.setHours(0, 0, 0, 0)),
+          $lt: new Date(ngayDatKham.setHours(23, 59, 59, 999)),
         },
       });
 
@@ -200,7 +202,7 @@ function ReceptionistController() {
 
       // Cập nhật trạng thái của lịch khám
       appointment.TrangThai = true;
-      appointment.SoThuTuKham = soThuTuKham; // Cập nhật số thứ tự khám
+      appointment.SoThuTuKham = soThuTuKham;
       await appointment.save();
 
       // Tạo phiếu khám nếu trạng thái là true
@@ -216,6 +218,28 @@ function ReceptionistController() {
 
       await phieuKhamMoi.save();
 
+      // Tạo và tải file PDF lên Cloudinary
+      const benhnhan = await BenhNhan.findOne({
+        _id: appointment.BenhNhanID,
+      });
+      const khoa = await Khoa.findOne({ _id: appointment.KhoaID });
+      const pdfData = {
+        tenbenhnhan: benhnhan.Ten,
+        gioitinh: benhnhan.GioiTinh,
+        diachi: benhnhan.DiaChi,
+        ngaysinh: benhnhan.NgaySinh,
+        khoa: khoa.Tenkhoa,
+        ngaydatkham: appointment.NgayDatKham.toLocaleDateString(),
+        tenbacsi: bacsi.HoTen,
+        stt: phieuKhamMoi.SoThuTuKham,
+        ca: appointment.CaKham,
+        trieuchung: appointment.TrieuChung,
+      };
+
+      const pdfUrl = await generateAndUploadPDF(pdfData, "phieukham");
+      phieuKhamMoi.pdf_url = pdfUrl;
+      await phieuKhamMoi.save();
+
       return successResponse(
         req,
         res,
@@ -223,13 +247,13 @@ function ReceptionistController() {
           message:
             "Lịch khám đã được xác nhận thành công và phiếu khám đã được tạo.",
           lichDatKham: appointment,
-          phieuKham: phieuKhamMoi, // Trả về phiếu khám đã tạo
+          phieuKham: phieuKhamMoi,
         },
         200
       );
     } catch (error) {
-      console.error(error); // Log lỗi để kiểm tra
-      return errorResponse(req, res, "Lỗi server khi xác nhận lịch khám.");
+      console.error(error);
+      return errorResponse(req, res, "Lỗi server khi xác nhận lịch khám.", 500);
     }
   };
 
@@ -412,13 +436,15 @@ function ReceptionistController() {
           $gte: new Date(dateStart),
           $lte: new Date(dateEnd),
         },
-      }).populate({
-        path: "MaBenhNhan", // Trường liên kết với bảng BenhNhan
-        select: "Ten", // Chỉ lấy trường Ten của BenhNhan
-      }).populate({
-        path: "MaHoaDon", // Trường liên kết với bảng BenhNhan
-        select: "TrangThaiThanhToan", // Chỉ lấy trường Ten của BenhNhan
-      });
+      })
+        .populate({
+          path: "MaBenhNhan", // Trường liên kết với bảng BenhNhan
+          select: "Ten", // Chỉ lấy trường Ten của BenhNhan
+        })
+        .populate({
+          path: "MaHoaDon", // Trường liên kết với bảng BenhNhan
+          select: "TrangThaiThanhToan", // Chỉ lấy trường Ten của BenhNhan
+        });
 
       return successResponse(
         req,
@@ -437,35 +463,39 @@ function ReceptionistController() {
   this.chitietphieukham = async (req, res) => {
     const { id } = req.params;
     try {
-      console.log(id);
       const appointment = await PhieuKham.findOne({ _id: id })
         .populate({
-          path: "MaBenhNhan", // Trường liên kết với bảng BenhNhan
-          select: "Ten GioiTinh NgaySinh", // Chỉ lấy trường Ten của BenhNhan
+          path: "MaBenhNhan",
+          select: "Ten GioiTinh NgaySinh",
         })
         .populate({
           path: "MaNhanVien",
           select: "HoTen",
+        })
+        .populate({
+          path: "Thuoc.MaThuoc",
+          select: "tenthuoc loaiThuoc",
         });
 
-      // const BacSi = await NhanVien.findOne({ _id: appointment.BacSiID });
-      // const BenhNhannew = await BenhNhan.findOne({
-      //   _id: appointment.BenhNhanID,
-      // });
-      // const Khoanew = await Khoa.findOne({
-      //   _id: appointment.KhoaID,
-      // });
-      console.log(appointment);
+      // Extract medication details from populated `Thuoc` array
+      const medicationDetails = appointment.Thuoc.map((item) => ({
+        tenthuoc: item.MaThuoc?.tenthuoc, // Access the populated medication name
+        loaiThuoc: item.MaThuoc?.loaiThuoc,
+        soluong: item.SoLuong,
+        cachdung: item.Cachdung,
+      }));
+
       return successResponse(
         req,
         res,
         {
           appointment,
+          medicationDetails, // Send the extracted medication details as part of the response
         },
         200
       );
     } catch (error) {
-      console.error(error); // Log lỗi để kiểm tra
+      console.error(error);
       return errorResponse(req, res, "Lỗi server", 500);
     }
   };
@@ -475,20 +505,22 @@ function ReceptionistController() {
     const exchangeRate = 23500; // Tỷ giá hối đoái từ VNĐ sang USD (Ví dụ: 1 USD = 23,500 VNĐ)
 
     try {
-      const appointment = await PhieuKham.findOne({ _id: appointmentId }).populate('Thuoc.Mathuoc');
+      const appointment = await PhieuKham.findOne({
+        _id: appointmentId,
+      }).populate("Thuoc.MaThuoc");
 
       if (!appointment) {
         return res.status(404).json({ message: "Phiếu khám không tồn tại" });
       }
-    
+
       let totalAmountVND = 150000;
-    
+
       for (const item of appointment.Thuoc) {
-        const drug = item.Mathuoc; 
-    
-        totalAmountVND += drug.dongia * item.SoLuong; 
+        const drug = item.MaThuoc;
+
+        totalAmountVND += drug.dongia * item.SoLuong;
       }
-       // Chuyển đổi sang USD
+      // Chuyển đổi sang USD
       const totalAmountUSD = Math.round(totalAmountVND / exchangeRate);
 
       return successResponse(
@@ -496,7 +528,7 @@ function ReceptionistController() {
         res,
         {
           totalAmountVND,
-          totalAmountUSD
+          totalAmountUSD,
         },
         200
       );

@@ -43,7 +43,7 @@ function AuthController() {
 
         // Thay đổi key hoặc cấu hình tùy thuộc vào vai trò (nếu cần thiết)
         const token = jwt.sign(payload, process.env.JWT_KEY, {
-          expiresIn: 3600, // 1 giờ
+          expiresIn: 86400, // 1 ngafy
         });
 
         return successResponse(req, res, {

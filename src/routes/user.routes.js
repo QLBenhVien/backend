@@ -52,5 +52,7 @@ route.get("/timkiemnhanvien", authJwt.verifyToken, User.timKiemNhanVien);
 //xem phieu kham
 route.put("/xemphieukham", authJwt.verifyToken, User.xemphieukham);
 
+route.get("/tatca_ketquakhambenh", authJwt.verifyToken, User.getketQuakham);
+route.get(`/detail_phieukham/:id`, authJwt.verifyToken, User.detailKetqua);
 //test tinh nang them lich kham
 module.exports = route;

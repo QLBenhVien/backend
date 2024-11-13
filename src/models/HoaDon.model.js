@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 
 const hoaDonSchema = new mongoose.Schema({
+  MaHoaDon: { type: String, unique: true }, // Định nghĩa trường MaHoaDon
+
   MaPhieu: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "PhieuKham",

@@ -7,6 +7,8 @@ const Hosobenhan = require("../models/Hoso");
 const BenhNhan = require("../models/BenhNhan");
 const PhieuKham = require("../models/PhieuKham");
 const Thuoc = require("../models/Thuoc.model");
+const DanhSachKham = require("../models/DanhSachKham");
+const BenhAn = require("../models/BenhAn");
 // function DoctorController() {
 //   this.home = async (req, res) => {
 //     const { id } = req.authenticatedUser.userId;
@@ -83,9 +85,9 @@ module.exports.getAllhsba = async (req, res) => {
 
 // 2. chi tiet ho so benh an
 module.exports.detailHoso = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params; //id benh nhan
   try {
-    const information = await BenhNhan.findById({ id });
+    const information = await BenhNhan.findOne({ _id: id });
     if (!information) {
       return errorResponse(req, res, "không tìm thấy thông tin bệnh nhân", 404);
     }
@@ -98,9 +100,10 @@ module.exports.detailHoso = async (req, res) => {
       SDT: information.SDT,
     };
 
-    // const benhan = await
-
-    return successResponse(req, res, { benhnhan }, 200);
+    const maHS = await Hosobenhan.findOne({ MaBenhNhan: id })._id;
+    const benhan = await BenhAn.find({ MaHS: maHS });
+    console.log(benhan);
+    return successResponse(req, res, { benhnhan, benhan }, 200);
   } catch (error) {
     return errorResponse(req, res, "Lỗi hệ thống!", 500);
   }
@@ -109,22 +112,33 @@ module.exports.detailHoso = async (req, res) => {
 //  --------------------page phieu kham benh----------------------------------
 
 module.exports.getPhieukham = async (req, res) => {
+  const id = req.authenticatedUser.userId;
   const { option } = req.params;
   let listPK;
 
   try {
+    const Nhanvien = await NhanVien.findOne({ MaTK: id }); // Sử dụng findOne để lấy một đối tượng
+
     if (option === "false") {
-      listPK = await PhieuKham.find({ TrangThai: false }).populate({
+      listPK = await PhieuKham.find({
+        TrangThai: false,
+        MaNhanVien: Nhanvien._id,
+      }).populate({
         path: "MaBenhNhan",
         select: "Ten",
       });
     } else if (option === "true") {
-      listPK = await PhieuKham.find({ TrangThai: true }).populate({
+      listPK = await PhieuKham.find({
+        TrangThai: true,
+        MaNhanVien: Nhanvien._id,
+      }).populate({
         path: "MaBenhNhan",
         select: "Ten",
       });
     } else {
-      listPK = await PhieuKham.find({ TrangThai: false }).populate({
+      listPK = await PhieuKham.find({
+        MaNhanVien: Nhanvien._id,
+      }).populate({
         path: "MaBenhNhan",
         select: "Ten",
       });
@@ -140,6 +154,7 @@ module.exports.getPhieukham = async (req, res) => {
       tinhTrang: phieu.TrangThai,
     }));
 
+    console.log(thongtinphieu);
     return successResponse(
       req,
       res,
@@ -161,10 +176,16 @@ module.exports.detailPhieukham = async (req, res) => {
   const { id } = req.params;
   try {
     console.log(id);
-    const detail = await PhieuKham.findOne({ _id: id }).populate({
-      path: "MaBenhNhan",
-      select: "Ten NgaySinh DiaChi GioiTinh SDT",
-    });
+    const detail = await PhieuKham.findOne({ _id: id })
+      .populate({
+        path: "MaBenhNhan",
+        select: "Ten NgaySinh DiaChi GioiTinh SDT",
+      })
+      .populate({
+        path: "Thuoc.MaThuoc",
+        select: "tenthuoc",
+      });
+
     if (!detail) {
       return errorResponse(req, res, "Không tìm thấy phiếu", 404);
     }
@@ -172,7 +193,7 @@ module.exports.detailPhieukham = async (req, res) => {
     return successResponse(
       req,
       res,
-      { detail, links: { acceptPhieu: "/doctor/endphieu" } },
+      { detail: detail, links: { acceptPhieu: "/doctor/endphieu" } },
       200
     );
   } catch (error) {
@@ -192,6 +213,7 @@ module.exports.updatePhieukham = async (req, res) => {
         ChanDoan: ChanDoan,
         LoiDan: LoiDan,
         Thuoc: Thuoc,
+        TrangThai: true,
       },
       { new: true }
     );
@@ -199,13 +221,7 @@ module.exports.updatePhieukham = async (req, res) => {
     if (!Phieu) {
       return errorResponse(req, res, "Không tìm thấy phiếu khám", 404);
     }
-    return successResponse(
-      req,
-      res,
-      Phieu,
-
-      200
-    );
+    return successResponse(req, res, Phieu, 200);
   } catch (error) {
     console.error(error);
     return errorResponse(req, res, "Lỗi hệ thống!", 500);
@@ -225,35 +241,55 @@ module.exports.goiyThuoc = async (req, res) => {
   }
 };
 
-module.exports.endPhieukham = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const phieukham = await PhieuKham.findByIdAndUpdate(
-      id,
-      {
-        TrangThai: true,
-      },
-      { new: true }
-    );
-    if (!phieuKham) {
-      return res.status(404).json({ message: "Không tìm thấy phiếu khám" });
-    }
-    return successResponse(req, res, phieukham, 200);
-  } catch (error) {
-    console.error(error);
-    return errorResponse(req, res, "Lỗi hệ thống!", 500);
-  }
-};
+// module.exports.endPhieukham = async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const phieukham = await PhieuKham.findByIdAndUpdate(
+//       id,
+//       {
+//         TrangThai: true,
+//       },
+//       { new: true }
+//     );
+//     if (!phieuKham) {
+//       return res.status(404).json({ message: "Không tìm thấy phiếu khám" });
+//     }
+//     return successResponse(req, res, phieukham, 200);
+//   } catch (error) {
+//     console.error(error);
+//     return errorResponse(req, res, "Lỗi hệ thống!", 500);
+//   }
+// };
 
 //test them danh sach kham cua bac si , day la test khoong phai cua user
 module.exports.themlichlam = async (req, res) => {
+  const id = req.authenticatedUser.userId;
   try {
-    const { MaNV, NgayKham, Ca } = req.body;
+    const { NgayKham, Ca } = req.body;
+    console.log(NgayKham, "Ngaykham");
+
+    const Nhanvien = await NhanVien.findOne({ MaTK: id }); // Tìm nhân viên
+    if (!Nhanvien) {
+      return res.status(404).json({ error: "Nhân viên không tồn tại" });
+    }
+
+    // Kiểm tra xem ca đã được đăng ký chưa
+    const existingShift = await DanhSachKham.findOne({ NgayKham, Ca });
+
+    if (existingShift) {
+      // Nếu ca đã có lịch khám, trả về thông báo lỗi
+      return res.status(400).json({
+        message: "Ca này đã được đăng ký trước đó",
+      });
+    }
+    //
+    // Nếu ca chưa có, tiến hành lưu ca mới
     const DanhSachKhams = new DanhSachKham({
-      MaNV: MaNV,
+      MaNV: Nhanvien ? Nhanvien._id : null,
       NgayKham: NgayKham,
       Ca: Ca,
     });
+
     const saveDanhSachKham = await DanhSachKhams.save();
     res.status(200).json({
       message: "Đăng ký lịch khám thành công",
@@ -267,8 +303,7 @@ module.exports.themlichlam = async (req, res) => {
 module.exports.listAvailableDoctors = async (req, res) => {
   try {
     const { departmentId, ngayKham, caKham } = req.body;
-    if (caKham == -1)
-    {
+    if (caKham == -1) {
       return successResponse(req, res, []);
     }
     // Kiểm tra xem `ngayKham` có hợp lệ không
@@ -278,20 +313,44 @@ module.exports.listAvailableDoctors = async (req, res) => {
     }
 
     // Tạo startOfDay và endOfDay để chỉ lấy trong ngày đó
-      // Thiết lập `startOfDay` và `endOfDay` theo UTC để bao quát toàn bộ ngày
-      const startOfDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0));
-      const endOfDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 23, 59, 59, 999));
-  
-    const doctors = await NhanVien.find({ MaKhoa: departmentId, MaCV: '6690fd36ff2ee427f702b83f' }); 
+    // Thiết lập `startOfDay` và `endOfDay` theo UTC để bao quát toàn bộ ngày
+    const startOfDay = new Date(
+      Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate(),
+        0,
+        0,
+        0
+      )
+    );
+    const endOfDay = new Date(
+      Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate(),
+        23,
+        59,
+        59,
+        999
+      )
+    );
+
+    const doctors = await NhanVien.find({
+      MaKhoa: departmentId,
+      MaCV: "6690fd36ff2ee427f702b83f",
+    });
     const busyDoctors = await LichKham.find({
       NgayKham: { $gte: startOfDay, $lt: endOfDay },
-      Ca: caKham
-    }).select('MaNV'); // Chỉ lấy MaNV của các bác sĩ đã bận
+      Ca: caKham,
+    }).select("MaNV"); // Chỉ lấy MaNV của các bác sĩ đã bận
 
-    const busyDoctorIds = busyDoctors.map(doc => doc.MaNV.toString());
+    const busyDoctorIds = busyDoctors.map((doc) => doc.MaNV.toString());
 
     // Lọc bác sĩ không có trong danh sách bác sĩ bận
-    const availableDoctors = doctors.filter(doctor => !busyDoctorIds.includes(doctor._id.toString()));
+    const availableDoctors = doctors.filter(
+      (doctor) => !busyDoctorIds.includes(doctor._id.toString())
+    );
 
     return successResponse(req, res, availableDoctors);
   } catch (error) {
@@ -299,6 +358,22 @@ module.exports.listAvailableDoctors = async (req, res) => {
   }
 };
 
+module.exports.thongtinlichlam = async (req, res) => {
+  const id = req.authenticatedUser.userId;
+  try {
+    console.log(id);
+    const Nhanvien = await NhanVien.findOne({ MaTK: id });
+    const danhsachkham = await DanhSachKham.find({ MaNV: Nhanvien._id });
+    res.status(200).json({ danhsachkham });
+  } catch (error) {
+    res.status(500).json({ error: "internal sever error" });
+  }
+};
 
-
-
+// xem danh sach benh nhan
+module.exports.getListbenhnhan = async () => {
+  try {
+  } catch (error) {
+    res.status(500).json({ error: "internal sever error" });
+  }
+};

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const benhanSchema = new mongoose.Schema({
+  MaHS: { type: mongoose.Schema.Types.ObjectId, ref: "HoSo", default: null },
   MaPK: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "PhieuKham",

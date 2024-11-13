@@ -4,16 +4,17 @@ GET http://localhost:8080/doctor/getAllhoso
 
 ###  phan phieu kham
 GET http://localhost:8080/doctor/getPhieukham/null
+Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJJZCI6IjY3MWE4NWM0MzEzNTQzOWExNThmNTE5OSIsImVtYWlsIjoiYmFjc2lkdXlAZXhhbXBsZS5jb20iLCJyb2xlIjoiQlMiLCJhY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjQtMTEtMDdUMDk6MzU6NTUuMzY0WiJ9LCJpYXQiOjE3MzA5NzIxNTUsImV4cCI6MTczMTA1ODU1NX0.k4_kUUCZKLhjIS5PFU2ynbKbLfj72OVnOqPKH06ix7c"
 ###
 GET http://localhost:8080/doctor/detailPhieukham/671f36b160bffcb192f801ca
 
 ###
-GET  http://localhost:8080/doctor/thuoc/para
+GET  http://localhost:8080/doctor/thuoc/pa
 
 ### Bác sĩ kê xong đơn thuốc và nhấn lưu thuốc
 PUT http://localhost:8080/doctor/updatePhieukham/671f36b160bffcb192f801ca
 Content-Type: application/json
-
+Authorization: ""
 {
   "TrieuChung": "Đau đầu, chóng mặt",
   "ChanDoan": "Thiếu máu",
@@ -31,4 +32,8 @@ Content-Type: application/json
     }
   ]
 }
+
+### xem lich kham
+GET http://localhost:8080/user/tatca_ketquakhambenh
+Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXJJZCI6IjY2ZmZiNTBiNjNkODYyOGExZTMxZGZhMSIsImVtYWlsIjoibGV0YW5uZWVAZXhhbXBsZS5jb20iLCJyb2xlIjoiTFQiLCJhY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjQtMTEtMDlUMTg6MTE6MTYuNjIxWiJ9LCJpYXQiOjE3MzExNzU4NzYsImV4cCI6MTczMTI2MjI3Nn0.W6smiQH1_xp5LLdiiRkoxjskpk1GGupdgABQHGOrSpk"
 

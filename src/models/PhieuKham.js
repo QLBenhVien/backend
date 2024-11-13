@@ -33,20 +33,21 @@ const phieuKhamSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "HoaDon", // Tham chiếu đến mô hình HoaDon
     default: null, // Giá trị mặc định là null
-  }, 
+  },
   LoiDan: { type: String, default: null },
   Thuoc: [
     {
       MaThuoc: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Thuoc",
-      },  
+      },
       DVT: { type: String, required: true },
       SoLuong: { type: Number, required: true }, // Số lượng thuốc
       Cachdung: { type: String, required: true }, // Cách dùng thuốc cụ thể hơn nếu cần
     },
   ],
   pdf_url: { type: String, default: null },
+  pdf_hoadon: { type: String, default: null },
 });
 
 const PhieuKham = mongoose.model("PhieuKham", phieuKhamSchema);

@@ -892,3 +892,94 @@ module.exports.xemphieukham = async (req, res) => {
     res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
   }
 };
+
+module.exports.getketQuakham = async (req, res) => {
+  try {
+    const userId = req.authenticatedUser?.userId;
+    if (!userId) {
+      return res.status(400).json({ message: "User not authenticated" });
+    }
+
+    const benhnhan = await BenhNhan.findOne({ accountId: userId });
+    if (!benhnhan) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    const phieukham = await PhieuKham.find({
+      MaBenhNhan: benhnhan._id,
+      MaHoaDon: { $ne: null },
+    })
+      .populate({
+        path: "MaBenhNhan",
+        select: "Ten NgaySinh DiaChi GioiTinh",
+      })
+      .populate({
+        path: "MaNhanVien",
+        select: "HoTen",
+      })
+      .populate({
+        path: "Thuoc.MaThuoc",
+        select: "tenthuoc loaiThuoc",
+      });
+
+    if (phieukham.length === 0) {
+      return res.status(404).json({ message: "No medical records found" });
+    }
+
+    const medicationDetails = phieukham.flatMap((item) =>
+      item.Thuoc
+        ? item.Thuoc.map((thuoc) => ({
+            tenthuoc: thuoc.MaThuoc?.tenthuoc, // Tên thuốc
+            loaiThuoc: thuoc.MaThuoc?.loaiThuoc, // Loại thuốc
+            soluong: thuoc.SoLuong,
+            cachdung: thuoc.Cachdung,
+          }))
+        : []
+    );
+
+    console.log(phieukham);
+    return successResponse(req, res, { phieukham, medicationDetails }, 200);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+  }
+};
+
+module.exports.detailKetqua = async (req, res) => {
+  const { id } = req.params;
+  try {
+    console.log(id.trim());
+    const phieukham = await PhieuKham.findById(id.trim())
+      .populate({
+        path: "MaBenhNhan",
+        select: "Ten NgaySinh DiaChi GioiTinh",
+      })
+      .populate({
+        path: "MaNhanVien",
+        select: "HoTen",
+      })
+      .populate({
+        path: "Thuoc.MaThuoc",
+        select: "tenthuoc loaiThuoc",
+      });
+
+    if (!phieukham) {
+      return res.status(404).json({ message: "No medical record found" });
+    }
+
+    // Xử lý chi tiết thuốc trong phiếu khám
+    const medicationDetails = phieukham.Thuoc
+      ? phieukham.Thuoc.map((thuoc) => ({
+          tenthuoc: thuoc.MaThuoc?.tenthuoc, // Tên thuốc
+          loaiThuoc: thuoc.MaThuoc?.loaiThuoc, // Loại thuốc
+          soluong: thuoc.SoLuong,
+          cachdung: thuoc.Cachdung,
+        }))
+      : [];
+
+    return successResponse(req, res, { phieukham, medicationDetails }, 200);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
+  }
+};

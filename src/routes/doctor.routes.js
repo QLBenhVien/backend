@@ -3,8 +3,8 @@ const express = require("express");
 const router = express.Router();
 const doctorController = require("../controllers/doctor.controller");
 
-router.get("/listdoctor/:departmentId", doctorController.listDoctors);
-router.post("/available-doctors", doctorController.listAvailableDoctors);
+// router.get("/listdoctor/:departmentId", doctorController.listDoctors);
+// router.post("/available-doctors", doctorController.listAvailableDoctors);
 
 const authJwt = require("../../src/middleware/authJwt");
 const authorize = require("../../src/middleware/authorizeRole");

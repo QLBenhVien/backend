@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const khoaSchema = new mongoose.Schema({
   Tenkhoa: { type: String },
 });

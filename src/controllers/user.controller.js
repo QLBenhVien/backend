@@ -350,7 +350,6 @@ module.exports.createPatientProfile = async (req, res) => {
     res.status(500).json({ message: "Lỗi máy chủ nội bộ", error });
   }
 };
-
 //Tìm hồ sơ bệnh nhân (tìm theo cccd,email hoặc số điện thoại)
 module.exports.findPatientProfile = async (req, res) => {
   try {

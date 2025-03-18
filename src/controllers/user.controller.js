@@ -12,6 +12,8 @@ const ChucVu = require("../models/ChucVu");
 const DanhSachKham = require("../models/DanhSachKham");
 const PhieuKham = require("../models/PhieuKham");
 const Hoso = require("../models/Hoso");
+
+
 module.exports.hello = async (req, res) => {
   res.json("day laf duong link /user");
 };

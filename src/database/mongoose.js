@@ -18,21 +18,21 @@ module.exports = connectDB; */
 
 const mongoose = require("mongoose");
 
-class Database {
-  constructor() {
-    if (!Database.instance) {
-      this.connection = null;
-      Database.instance = this;
+class Database { // trong javascrip không hỗ trợ private constructor => tạo một thể hiện duy nhất
+    constructor() {
+      if (!Database.instance) { // kiểm tra instance 
+        this.connection = null; // khai báo thuộc tính connection 
+        Database.instance = this; //Lưu instance hiện tại vào thuộc tính tĩnh Database.instance, giúp đảm bảo lần sau khi gọi new Database(), nó sẽ trả về cùng một instance
+      }
+      return Database.instance; // Nếu đã có instance trước đó (Database.instance không phải null ) thì thay vì tao mới sẽ  trả về cùng một instance 
     }
-    return Database.instance;
-  }
 
   async connect() {
-    if (!this.connection) {
+    if (!this.connection) { // Nếu this.connect chưa được gán null chưa được kết nối 
       try {
         this.connection = await mongoose.connect(process.env.MONGO_URL, {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
+          useNewUrlParser: true, //  Dùng bộ phân tích URL mới để tránh cảnh báo. 
+          useUnifiedTopology: true, //  Dùng engine kết nối mới của MongoDB, tránh lỗi kết nối cũ.
         });
         console.log("✅ MongoDB connected successfully");
       } catch (error) {

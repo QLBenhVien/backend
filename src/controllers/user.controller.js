@@ -12,7 +12,7 @@ const ChucVu = require("../models/ChucVu");
 const DanhSachKham = require("../models/DanhSachKham");
 const PhieuKham = require("../models/PhieuKham");
 const Hoso = require("../models/Hoso");
-
+const AppointmentFacade = require("../pattern/appointmentFacade");
 
 module.exports.hello = async (req, res) => {
   res.json("day laf duong link /user");
@@ -203,35 +203,63 @@ module.exports.Theongay = async (req, res, next) => {
   }
 };
 
-module.exports.Datkham = async (req, res, next) => {
+// module.exports.Datkham = async (req, res, next) => {
+//   try {
+//     const { TenNV, MaBN, TenKhoa, NgayDat } = req.body;
+
+//     const MaKhoa = await Khoa.findOne({ tenkhoa: TenKhoa });
+
+//     const MaNV = await NhanVien.findOne({ HoTen: "NgocDuyIT" });
+
+//     const LickKhamnew = new LickKham({
+//       NhanVienID: MaNV._id,
+//       BenhNhanID: MaBN,
+//       // KhoaID: MaKhoa._id,
+//       NgayDat: NgayDat,
+//     });
+
+//     const saveLichKham = await LickKhamnew.save();
+
+//     const ThongBaonew = new ThongBao({
+//       TieuDe: "Đặt lịch thành công",
+//     });
+
+//     ThongBaonew.save();
+
+//     res.status(200).json({
+//       message: "Lichkham registered successfully",
+//       LichKham: saveLichKham,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+
+module.exports.Datkham = async (req, res) => {
   try {
-    const { TenNV, MaBN, TenKhoa, NgayDat } = req.body;
+    const appointmentData = {
+      TenNV: req.body.TenNV || "NgocDuyIT",
+      MaBN: req.body.MaBN,
+      TenKhoa: req.body.TenKhoa,
+      NgayDat: req.body.NgayDat
+    };
 
-    const MaKhoa = await Khoa.findOne({ tenkhoa: TenKhoa });
+    // Gọi Facade để xử lý đặt lịch
+    const result = await AppointmentFacade.createAppointment(appointmentData);
 
-    const MaNV = await NhanVien.findOne({ HoTen: "NgocDuyIT" });
-
-    const LickKhamnew = new LickKham({
-      NhanVienID: MaNV._id,
-      BenhNhanID: MaBN,
-      // KhoaID: MaKhoa._id,
-      NgayDat: NgayDat,
-    });
-
-    const saveLichKham = await LickKhamnew.save();
-
-    const ThongBaonew = new ThongBao({
-      TieuDe: "Đặt lịch thành công",
-    });
-
-    ThongBaonew.save();
+    if (!result.success) {
+      return res.status(400).json({ success: false, message: result.message });
+    }
 
     res.status(200).json({
-      message: "Lichkham registered successfully",
-      LichKham: saveLichKham,
+      success: true,
+      message: "Lịch khám đã được đặt thành công!",
+      LichKham: result.appointment
     });
   } catch (error) {
-    console.log(error);
+    console.error("Lỗi khi đặt lịch khám:", error);
+    res.status(500).json({ success: false, message: "Lỗi hệ thống!" });
   }
 };
 //////////////////////////////////////////////////////////////////////////////////

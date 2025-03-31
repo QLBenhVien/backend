@@ -1,6 +1,5 @@
-let router = require("express").Router();
-const AuthController = require("../controllers/auth.controller");
-const authJwt = require("../middleware/authJwt");
-router.post("/login", AuthController.login);
-router.post("/register", AuthController.register);
-module.exports = router;
+const router = require("express").Router();
+const authController = require("../controllers/auth.controller"); // Đổi tên biến về chữ thường
+
+router.post("/login", authController.login);
+router.post("/register", authController.register);

@@ -10,7 +10,7 @@ const receptionistRoute = require("./receptionist.routes");
 const paymentRoute = require("./payment.routes");
 const itSupportRoute = require("./itSupport.routes");
 
-router.use("/", authRoute);
+router.use("/auth", authRoute); // đường dẫn của router auth  
 router.use("/user", userRoute);
 router.use("/admin", adminRoute);
 router.use("/department", departmentRoute);

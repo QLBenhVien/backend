@@ -8,34 +8,24 @@ const doctorController = require("../controllers/doctor.controller");
 
 const authJwt = require("../../src/middleware/authJwt");
 const authorize = require("../../src/middleware/authorizeRole");
-router.get(
-  "/getAllhoso",
-  authJwt.verifyToken,
-  authorize.authorizeRole("BS"),
-  doctorController.getAllhsba
-);
-router.get(
-  "/detailHoso/:id",
-  authJwt.verifyToken,
-  authorize.authorizeRole("BS"),
-  doctorController.detailHoso
-);
+const applyMiddlewares = require("../patterns/admin/decorator");
+const LT_MIDDLEWARES = [authJwt.verifyToken, authorize.authorizeRole("BS")];
+
+router.get("/getAllhoso", LT_MIDDLEWARES, doctorController.getAllhsba);
+router.get("/detailHoso/:id", LT_MIDDLEWARES, doctorController.detailHoso);
 router.get(
   "/getPhieukham/:option",
-  authJwt.verifyToken,
-  authorize.authorizeRole("BS"),
+  LT_MIDDLEWARES,
   doctorController.getPhieukham
 );
 router.get(
   "/detailPhieukham/:id",
-  authJwt.verifyToken,
-  authorize.authorizeRole("BS"),
+  LT_MIDDLEWARES,
   doctorController.detailPhieukham
 );
 router.put(
   "/updatePhieukham/:id",
-  authJwt.verifyToken,
-  authorize.authorizeRole("BS"),
+  LT_MIDDLEWARES,
   doctorController.updatePhieukham
 );
 // router.put(
@@ -45,18 +35,8 @@ router.put(
 //   doctorController.endPhieukham
 // );
 router.get("/thuoc/:ten", doctorController.goiyThuoc);
-router.put(
-  "/themlichlam",
-  authJwt.verifyToken,
-  authorize.authorizeRole("BS"),
-  doctorController.themlichlam
-);
-router.get(
-  "/lichlam",
-  authJwt.verifyToken,
-  authorize.authorizeRole("BS"),
-  doctorController.thongtinlichlam
-);
+router.put("/themlichlam", LT_MIDDLEWARES, doctorController.themlichlam);
+router.get("/lichlam", LT_MIDDLEWARES, doctorController.thongtinlichlam);
 // check laij
 // router.get("/listdoctor/:departmentId", doctorController.listDoctors);
 module.exports = router;

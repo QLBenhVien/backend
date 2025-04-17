@@ -262,41 +262,68 @@ module.exports.goiyThuoc = async (req, res) => {
 // };
 
 //test them danh sach kham cua bac si , day la test khoong phai cua user
-module.exports.themlichlam = async (req, res) => {
-  const id = req.authenticatedUser.userId;
-  try {
-    const { NgayKham, Ca } = req.body;
-    console.log(NgayKham, "Ngaykham");
+// module.exports.themlichlam = async (req, res) => {
+//   const id = req.authenticatedUser.userId;
+//   try {
+//     const { NgayKham, Ca } = req.body;
+//     console.log(NgayKham, "Ngaykham");
 
-    const Nhanvien = await NhanVien.findOne({ MaTK: id }); // Tìm nhân viên
+//     const Nhanvien = await NhanVien.findOne({ MaTK: id }); // Tìm nhân viên
+//     if (!Nhanvien) {
+//       return res.status(404).json({ error: "Nhân viên không tồn tại" });
+//     }
+
+//     // Kiểm tra xem ca đã được đăng ký chưa
+//     const existingShift = await DanhSachKham.findOne({ NgayKham, Ca });
+
+//     if (existingShift) {
+//       // Nếu ca đã có lịch khám, trả về thông báo lỗi
+//       return res.status(400).json({
+//         message: "Ca này đã được đăng ký trước đó",
+//       });
+//     }
+//     //
+//     // Nếu ca chưa có, tiến hành lưu ca mới
+//     const DanhSachKhams = new DanhSachKham({
+//       MaNV: Nhanvien ? Nhanvien._id : null,
+//       NgayKham: NgayKham,
+//       Ca: Ca,
+//     });
+
+//     const saveDanhSachKham = await DanhSachKhams.save();
+//     res.status(200).json({
+//       message: "Đăng ký lịch khám thành công",
+//       DanhSachKham: saveDanhSachKham,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: "internal sever error" });
+//   }
+// };
+
+//them lich lam ap dung command pattern
+const ThemLichLamCommand = require("../patterns/admin/command_pattern/ThemLichLamCommand");
+module.exports.themlichlam = async (req, res) => {
+  try {
+    const id = req.authenticatedUser.userId;
+    const { NgayKham, Ca } = req.body;
+    if (!NgayKham || !Ca) {
+      return res.status(400).json({ error: "Thiếu dữ liệu NgayKham hoặc Ca" });
+    }
+
+    const Nhanvien = await NhanVien.findOne({ MaTK: id });
     if (!Nhanvien) {
       return res.status(404).json({ error: "Nhân viên không tồn tại" });
     }
 
-    // Kiểm tra xem ca đã được đăng ký chưa
-    const existingShift = await DanhSachKham.findOne({ NgayKham, Ca });
+    const command = new ThemLichLamCommand(Nhanvien._id, NgayKham, Ca);
+    const saveDanhSachKham = await command.execute();
 
-    if (existingShift) {
-      // Nếu ca đã có lịch khám, trả về thông báo lỗi
-      return res.status(400).json({
-        message: "Ca này đã được đăng ký trước đó",
-      });
-    }
-    //
-    // Nếu ca chưa có, tiến hành lưu ca mới
-    const DanhSachKhams = new DanhSachKham({
-      MaNV: Nhanvien ? Nhanvien._id : null,
-      NgayKham: NgayKham,
-      Ca: Ca,
-    });
-
-    const saveDanhSachKham = await DanhSachKhams.save();
     res.status(200).json({
       message: "Đăng ký lịch khám thành công",
       DanhSachKham: saveDanhSachKham,
     });
   } catch (error) {
-    res.status(500).json({ error: "internal sever error" });
+    res.status(500).json({ error: error.message || "Internal server error" });
   }
 };
 

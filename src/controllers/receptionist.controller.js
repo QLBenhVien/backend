@@ -11,7 +11,12 @@ const ChucVu = require("../models/ChucVu");
 const PhieuKham = require("../models/PhieuKham");
 const Thuoc = require("../models/Thuoc.model");
 
-const { generateAndUploadPDF } = require("../services/pdf/pdfGenerator");
+// Prototype methods
+const PhieuKhamPrototype = require("../patterns/admin/PhieuKhamPrototype");
+const FdfFacade = require("../patterns/admin/PdfFacade");
+
+// const { generateAndUploadPDF } = require("../services/pdf/pdfGenerator");
+// const PhieuKhamPrototype = require("../patterns/admin/PhieuKhamPrototype");
 
 function ReceptionistController() {
   this.home = async (req, res) => {
@@ -171,12 +176,26 @@ function ReceptionistController() {
     }
   };
 
+  //template phieu kham benh
+  const phieuKhamMoi = {
+    MaPhieu: `PK${Date.now()}`,
+    MaDanhSach: "",
+    MaBenhNhan: "",
+    MaNhanVien: "",
+    TenPhieu: "Phiếu khám bệnh",
+    SoThuTuKham: "",
+    NgayKham: "",
+  };
+
+  // const FdfFacade = require("../patterns/admin/PdfFacade");
+  const phieuKhamPrototype = new PhieuKhamPrototype(phieuKhamMoi);
   // da co link pdf
   this.approveappointment = async (req, res) => {
     try {
+      console.log("Chức năng xác nhận lịch khám đã được gọi");
       const { id } = req.params;
       const receptionisterId = req.authenticatedUser.userId;
-      console.log(id);
+      // console.log(id);
 
       const appointment = await LichDatKham.findOne({ _id: id });
       if (!appointment) {
@@ -206,15 +225,27 @@ function ReceptionistController() {
       await appointment.save();
 
       // Tạo phiếu khám nếu trạng thái là true
-      const phieuKhamMoi = new PhieuKham({
-        MaPhieu: `PK${Date.now()}`,
-        MaDanhSach: appointment._id,
-        MaBenhNhan: appointment.BenhNhanID,
-        MaNhanVien: bacsi._id,
-        TenPhieu: "Phiếu khám bệnh",
-        SoThuTuKham: appointment.SoThuTuKham,
-        NgayKham: appointment.NgayDatKham,
-      });
+      // const phieuKhamMoi = new PhieuKham({
+      //   MaPhieu: `PK${Date.now()}`,
+      //   MaDanhSach: appointment._id,
+      //   MaBenhNhan: appointment.BenhNhanID,
+      //   MaNhanVien: bacsi._id,
+      //   TenPhieu: "Phiếu khám bệnh",
+      //   SoThuTuKham: appointment.SoThuTuKham,
+      //   NgayKham: appointment.NgayDatKham,
+      // });
+
+      const phieuKhamMoi = new PhieuKham(
+        phieuKhamPrototype.clone({
+          MaPhieu: `PK${Date.now()}`,
+          MaDanhSach: appointment._id,
+          MaBenhNhan: appointment.BenhNhanID,
+          MaNhanVien: bacsi._id,
+          TenPhieu: "Phiếu khám bệnh",
+          SoThuTuKham: appointment.SoThuTuKham,
+          NgayKham: appointment.NgayDatKham,
+        })
+      );
 
       await phieuKhamMoi.save();
 
@@ -223,22 +254,34 @@ function ReceptionistController() {
         _id: appointment.BenhNhanID,
       });
       const khoa = await Khoa.findOne({ _id: appointment.KhoaID });
-      const pdfData = {
-        tenbenhnhan: benhnhan.Ten,
-        gioitinh: benhnhan.GioiTinh,
-        diachi: benhnhan.DiaChi,
-        ngaysinh: benhnhan.NgaySinh,
-        khoa: khoa.Tenkhoa,
-        ngaydatkham: appointment.NgayDatKham.toLocaleDateString(),
-        tenbacsi: bacsi.HoTen,
-        stt: phieuKhamMoi.SoThuTuKham,
-        ca: appointment.CaKham,
-        trieuchung: appointment.TrieuChung,
-      };
+      // const pdfData = {
+      //   tenbenhnhan: benhnhan.Ten,
+      //   gioitinh: benhnhan.GioiTinh,
+      //   diachi: benhnhan.DiaChi,
+      //   ngaysinh: benhnhan.NgaySinh,
+      //   khoa: khoa.Tenkhoa,
+      //   ngaydatkham: appointment.NgayDatKham.toLocaleDateString(),
+      //   tenbacsi: bacsi.HoTen,
+      //   stt: phieuKhamMoi.SoThuTuKham,
+      //   ca: appointment.CaKham,
+      //   trieuchung: appointment.TrieuChung,
+      // };
 
-      const pdfUrl = await generateAndUploadPDF(pdfData, "phieukham");
+      // const pdfUrl = await generateAndUploadPDF(pdfData, "phieukham");
+      // phieuKhamMoi.pdf_url = pdfUrl;
+
+      // mau facade pattern
+      const fdf = new FdfFacade(
+        benhnhan,
+        khoa,
+        appointment,
+        bacsi,
+        phieuKhamMoi
+      );
+      const pdfUrl = await fdf.generateFDF();
       phieuKhamMoi.pdf_url = pdfUrl;
       await phieuKhamMoi.save();
+      console.log(phieuKhamMoi.pdf_url); // Có thể bị null nếu chưa hoàn thành
 
       return successResponse(
         req,

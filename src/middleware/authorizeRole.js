@@ -2,7 +2,7 @@ const TaiKhoan = require("../models/NhanVien");
 
 function authorizeRole(requiredRole) {
   return (req, res, next) => {
-    return next();
+    // return next();
     if (req.authenticatedUser.role === requiredRole) {
       return next();
     }

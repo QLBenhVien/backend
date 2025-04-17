@@ -1,0 +1,826 @@
+{
+  "_id": "399c0084-17d4-46d8-ba1f-8e09947d539e",
+  "name": "QLBV",
+  "_type": "Project",
+  "ownedElements": [
+    {
+      "_id": "56068d39-eee7-4b58-b4f7-f06d89e3d544",
+      "name": "Model",
+      "_type": "UMLModel",
+      "ownedElements": [
+        {
+          "_id": "d1988de4-f50e-470b-8710-105e832c09ee",
+          "name": "Class Diagram",
+          "_type": "UMLClassDiagram",
+          "ownedElements": [],
+          "_parent": {
+            "$ref": "56068d39-eee7-4b58-b4f7-f06d89e3d544"
+          },
+          "stereotypes": [],
+          "tags": [],
+          "comment": "",
+          "visibility": "public",
+          "graph": {
+            "cells": [
+              {
+                "type": "custom.UMLClass",
+                "metaId": "b753badf-e2bf-41ba-84fd-70bef822e175",
+                "name": "User",
+                "packageName": "(root)",
+                "stereotypes": [
+                  "<<Entity>>"
+                ],
+                "attributes": [
+                  "+username: String [1]",
+                  "+password: Password [1]",
+                  "+roles: SecurityRole [0..*]"
+                ],
+                "methods": [
+                  ""
+                ],
+                "position": {
+                  "x": 410,
+                  "y": 160
+                },
+                "size": {
+                  "width": 234.5,
+                  "height": 140.14
+                },
+                "angle": 0,
+                "id": "61b10d2c-d952-4540-8975-7ba86d8d9c75",
+                "z": 1,
+                "attrs": {
+                  "umlClassNameRect": {
+                    "height": 63.14
+                  },
+                  "umlClassAttrsRect": {
+                    "height": 54,
+                    "transform": "translate(0,63.14)"
+                  },
+                  "umlClassMethodsRect": {
+                    "height": 23,
+                    "transform": "translate(0,117.14)"
+                  },
+                  "umlClassStereoText": {
+                    "text": "<<Entity>>"
+                  },
+                  "umlClassPackageText": {
+                    "ref-y": 19.44,
+                    "text": "(root)"
+                  },
+                  "umlClassNameText": {
+                    "ref-y": 37.44,
+                    "text": "User"
+                  },
+                  "umlClassAttrsText": {
+                    "text": "+username: String [1]\n+password: Password [1]\n+roles: SecurityRole [0..*]"
+                  },
+                  "umlClassMethodsText": {
+                    "text": ""
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "_id": "b753badf-e2bf-41ba-84fd-70bef822e175",
+          "name": "User",
+          "_type": "UMLClass",
+          "ownedElements": [
+            {
+              "_id": "b06985b2-fbee-4f92-966c-5e7d2c86c25f",
+              "name": "username",
+              "_type": "UMLAttribute",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "b753badf-e2bf-41ba-84fd-70bef822e175"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public",
+              "type": {
+                "$ref": "7ff07099-fcd8-481b-8f08-711b789c7d68"
+              },
+              "isReadOnly": false,
+              "isUnique": false,
+              "multiplicity": "1",
+              "defaultValue": "",
+              "isStatic": false
+            },
+            {
+              "_id": "1846dcb8-9aed-4995-8887-098f23c6de2d",
+              "name": "password",
+              "_type": "UMLAttribute",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "b753badf-e2bf-41ba-84fd-70bef822e175"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public",
+              "type": {
+                "$ref": "450944c4-084b-4f8f-a984-543a1035ddfb"
+              },
+              "isReadOnly": false,
+              "isUnique": false,
+              "multiplicity": "1",
+              "defaultValue": "",
+              "isStatic": false
+            },
+            {
+              "_id": "4abb7b28-a157-4aa8-8cb3-cef0f09cd43a",
+              "name": "roles",
+              "_type": "UMLAttribute",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "b753badf-e2bf-41ba-84fd-70bef822e175"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public",
+              "type": {
+                "$ref": "45272e9e-4f64-484b-9a82-7eeb9c9f5c60"
+              },
+              "isReadOnly": false,
+              "isUnique": false,
+              "multiplicity": "0..*",
+              "defaultValue": "",
+              "isStatic": false
+            }
+          ],
+          "_parent": {
+            "$ref": "56068d39-eee7-4b58-b4f7-f06d89e3d544"
+          },
+          "stereotypes": [
+            {
+              "$ref": "c565e412-6dde-4519-8193-c1b722891433"
+            }
+          ],
+          "tags": [],
+          "comment": "",
+          "visibility": "public",
+          "packageName": ""
+        }
+      ],
+      "_parent": {
+        "$ref": "399c0084-17d4-46d8-ba1f-8e09947d539e"
+      },
+      "stereotypes": [],
+      "tags": [],
+      "comment": "",
+      "visibility": "public"
+    },
+    {
+      "_id": "a0a34680-6d44-4fb7-89d4-e7924922eed1",
+      "name": "Data Types",
+      "_type": "UMLProfile",
+      "ownedElements": [
+        {
+          "_id": "c13aa12c-41f6-416f-aa06-35b7ca969d28",
+          "name": "Primatives",
+          "_type": "UMLPackage",
+          "ownedElements": [
+            {
+              "_id": "e8ad8116-b8b9-45b7-b1b1-108258214664",
+              "name": "void",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "c13aa12c-41f6-416f-aa06-35b7ca969d28"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "7ff07099-fcd8-481b-8f08-711b789c7d68",
+              "name": "String",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "c13aa12c-41f6-416f-aa06-35b7ca969d28"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "c96670fd-3d41-4689-94fc-3838d586a52f",
+              "name": "Number",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "c13aa12c-41f6-416f-aa06-35b7ca969d28"
+              },
+              "stereotypes": [],
+              "tags": [
+                {
+                  "_id": "a475f2d5-9aba-4c6b-81b3-7609a82df837",
+                  "name": "minVal",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "c96670fd-3d41-4689-94fc-3838d586a52f"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "-999999999.9999"
+                },
+                {
+                  "_id": "f1930f0f-e8ff-4831-8939-4ac4a1dff694",
+                  "name": "maxVal",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "c96670fd-3d41-4689-94fc-3838d586a52f"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "999999999.9999"
+                }
+              ],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "c1f78463-ec3e-4735-a45a-e9cd2b209e96",
+              "name": "Boolean",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "c13aa12c-41f6-416f-aa06-35b7ca969d28"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "ca32f9b1-facd-483b-aee4-39e6a03895b3",
+              "name": "Text",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "c13aa12c-41f6-416f-aa06-35b7ca969d28"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            }
+          ],
+          "_parent": {
+            "$ref": "a0a34680-6d44-4fb7-89d4-e7924922eed1"
+          },
+          "stereotypes": [],
+          "tags": [],
+          "comment": "",
+          "visibility": "public"
+        },
+        {
+          "_id": "76867a0b-e483-4e59-b4c8-3cfdb700093a",
+          "name": "Date and time",
+          "_type": "UMLPackage",
+          "ownedElements": [
+            {
+              "_id": "90debd46-8814-4704-9091-fd366bd830f6",
+              "name": "DateTime",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "76867a0b-e483-4e59-b4c8-3cfdb700093a"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "9b54e576-b7fb-46d2-92a0-47236025eb50",
+              "name": "Date",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "76867a0b-e483-4e59-b4c8-3cfdb700093a"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "c45d2ba1-24a7-4524-be5b-f21de9bbb8e8",
+              "name": "Time",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "76867a0b-e483-4e59-b4c8-3cfdb700093a"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            }
+          ],
+          "_parent": {
+            "$ref": "a0a34680-6d44-4fb7-89d4-e7924922eed1"
+          },
+          "stereotypes": [],
+          "tags": [],
+          "comment": "",
+          "visibility": "public"
+        },
+        {
+          "_id": "624fc4a9-b0fd-4e2b-8d11-ef7853e7def9",
+          "name": "Precision numbers",
+          "_type": "UMLPackage",
+          "ownedElements": [
+            {
+              "_id": "453bac6c-abe1-4578-bb84-b3e52cc7bf29",
+              "name": "Integer",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "624fc4a9-b0fd-4e2b-8d11-ef7853e7def9"
+              },
+              "stereotypes": [],
+              "tags": [
+                {
+                  "_id": "10dcdc49-7dab-4e08-81ec-90fff3d38e22",
+                  "name": "minVal",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "453bac6c-abe1-4578-bb84-b3e52cc7bf29"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "-999999999"
+                },
+                {
+                  "_id": "96728e97-94a5-4979-b9a7-3dbec57b73bb",
+                  "name": "maxVal",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "453bac6c-abe1-4578-bb84-b3e52cc7bf29"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "999999999"
+                }
+              ],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "a302dba5-a422-4b67-9cad-621b28e5b7e2",
+              "name": "Decimal",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "624fc4a9-b0fd-4e2b-8d11-ef7853e7def9"
+              },
+              "stereotypes": [],
+              "tags": [
+                {
+                  "_id": "e32eeff9-c938-4556-8165-c1fa3f08dd02",
+                  "name": "minVal",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "a302dba5-a422-4b67-9cad-621b28e5b7e2"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "-999999999.9999"
+                },
+                {
+                  "_id": "c2dbe8a6-f43d-42d6-a254-3e93894e30a2",
+                  "name": "maxVal",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "a302dba5-a422-4b67-9cad-621b28e5b7e2"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "999999999.9999"
+                }
+              ],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "e7c6449d-a897-4334-9328-caeb374cd26f",
+              "name": "Currency",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "624fc4a9-b0fd-4e2b-8d11-ef7853e7def9"
+              },
+              "stereotypes": [],
+              "tags": [
+                {
+                  "_id": "20dced04-48d9-4fe3-9fa1-f0842c58ed74",
+                  "name": "minVal",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "e7c6449d-a897-4334-9328-caeb374cd26f"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "-999999999.99"
+                },
+                {
+                  "_id": "ffb22a0f-3eb2-4d45-a156-40449e101560",
+                  "name": "maxVal",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "e7c6449d-a897-4334-9328-caeb374cd26f"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "999999999.99"
+                }
+              ],
+              "comment": "",
+              "visibility": "public"
+            }
+          ],
+          "_parent": {
+            "$ref": "a0a34680-6d44-4fb7-89d4-e7924922eed1"
+          },
+          "stereotypes": [],
+          "tags": [],
+          "comment": "",
+          "visibility": "public"
+        },
+        {
+          "_id": "8703326d-79a2-4da1-a971-c99eb9d5aa03",
+          "name": "Technology",
+          "_type": "UMLPackage",
+          "ownedElements": [
+            {
+              "_id": "450944c4-084b-4f8f-a984-543a1035ddfb",
+              "name": "Password",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "8703326d-79a2-4da1-a971-c99eb9d5aa03"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "fdef0022-b1f9-4280-8ee6-be613247985a",
+              "name": "Email",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "8703326d-79a2-4da1-a971-c99eb9d5aa03"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "e5724ec1-35f9-4b19-abeb-e768d0de74c8",
+              "name": "Url",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "8703326d-79a2-4da1-a971-c99eb9d5aa03"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            }
+          ],
+          "_parent": {
+            "$ref": "a0a34680-6d44-4fb7-89d4-e7924922eed1"
+          },
+          "stereotypes": [],
+          "tags": [],
+          "comment": "",
+          "visibility": "public"
+        }
+      ],
+      "stereotypes": [],
+      "tags": [],
+      "comment": "",
+      "visibility": "public"
+    },
+    {
+      "_id": "8d6958cf-e7a6-4ff0-9848-13482f6c2d42",
+      "name": "NodeMDA",
+      "_type": "UMLProfile",
+      "ownedElements": [
+        {
+          "_id": "491fe4fe-004f-48bd-b2df-8560cf6c62e7",
+          "name": "Stereotypes",
+          "_type": "UMLPackage",
+          "ownedElements": [
+            {
+              "_id": "c565e412-6dde-4519-8193-c1b722891433",
+              "name": "Entity",
+              "_type": "UMLStereotype",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "491fe4fe-004f-48bd-b2df-8560cf6c62e7"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "de21a892-8ba6-4638-8cd2-24dc4436ce2e",
+              "name": "Enumeration",
+              "_type": "UMLStereotype",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "491fe4fe-004f-48bd-b2df-8560cf6c62e7"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "99949bf5-fe71-4e75-a4b3-1f344adeaa85",
+              "name": "POJO",
+              "_type": "UMLStereotype",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "491fe4fe-004f-48bd-b2df-8560cf6c62e7"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "00df7873-387a-4cc2-a6b7-643c512ba876",
+              "name": "Service",
+              "_type": "UMLStereotype",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "491fe4fe-004f-48bd-b2df-8560cf6c62e7"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            }
+          ],
+          "_parent": {
+            "$ref": "8d6958cf-e7a6-4ff0-9848-13482f6c2d42"
+          },
+          "stereotypes": [],
+          "tags": [],
+          "comment": "",
+          "visibility": "public"
+        },
+        {
+          "_id": "573ccd8a-787c-490a-862a-769f5f790aaa",
+          "name": "Security",
+          "_type": "UMLPackage",
+          "ownedElements": [
+            {
+              "_id": "a1ec08c0-5c10-47ca-a5d7-e5b216d53049",
+              "name": "User",
+              "_type": "UMLActor",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "573ccd8a-787c-490a-862a-769f5f790aaa"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "3d171d32-4971-4566-b8d9-08a0a594fdcd",
+              "name": "Admin",
+              "_type": "UMLActor",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "573ccd8a-787c-490a-862a-769f5f790aaa"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "3fcd0d06-0a1a-40a5-8e4e-1ac130fab45e",
+              "name": "Guest",
+              "_type": "UMLActor",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "573ccd8a-787c-490a-862a-769f5f790aaa"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "45272e9e-4f64-484b-9a82-7eeb9c9f5c60",
+              "name": "SystemRole",
+              "_type": "UMLDataType",
+              "ownedElements": [],
+              "_parent": {
+                "$ref": "573ccd8a-787c-490a-862a-769f5f790aaa"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            }
+          ],
+          "_parent": {
+            "$ref": "8d6958cf-e7a6-4ff0-9848-13482f6c2d42"
+          },
+          "stereotypes": [],
+          "tags": [],
+          "comment": "",
+          "visibility": "public"
+        },
+        {
+          "_id": "84171366-9e76-4846-8594-30229110910a",
+          "name": "Special tags",
+          "_type": "UMLPackage",
+          "ownedElements": [
+            {
+              "_id": "b3fdb670-45cd-4f2e-8255-b472014dc9f8",
+              "name": "For Entities",
+              "_type": "UMLPackage",
+              "ownedElements": [
+                {
+                  "_id": "795e7fca-94b9-4c21-a3e1-a858c5e7dc6d",
+                  "name": "noUI",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "b3fdb670-45cd-4f2e-8255-b472014dc9f8"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "true"
+                },
+                {
+                  "_id": "5c91deef-1057-42d3-90ca-9e3964bca25c",
+                  "name": "noREST",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "b3fdb670-45cd-4f2e-8255-b472014dc9f8"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "true"
+                }
+              ],
+              "_parent": {
+                "$ref": "84171366-9e76-4846-8594-30229110910a"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "67ddedf3-fba0-4b6d-970d-25e29b4310a8",
+              "name": "For attributes",
+              "_type": "UMLPackage",
+              "ownedElements": [
+                {
+                  "_id": "b3f17da8-a937-4e39-990a-58bae5c48f7e",
+                  "name": "uiTableColumn",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "67ddedf3-fba0-4b6d-970d-25e29b4310a8"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "true"
+                },
+                {
+                  "_id": "21c5b0e9-89de-4481-bf3f-4ae616524e09",
+                  "name": "unique",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "67ddedf3-fba0-4b6d-970d-25e29b4310a8"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "true"
+                },
+                {
+                  "_id": "c65fb922-394a-4279-bcb8-abceae0bd0a1",
+                  "name": "dbIndex",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "67ddedf3-fba0-4b6d-970d-25e29b4310a8"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "true"
+                }
+              ],
+              "_parent": {
+                "$ref": "84171366-9e76-4846-8594-30229110910a"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            },
+            {
+              "_id": "a15320b4-afff-4e9f-9481-32273d2a8c2b",
+              "name": "For Dependencies",
+              "_type": "UMLPackage",
+              "ownedElements": [
+                {
+                  "_id": "482a940c-a5dc-4c88-8948-4fd7baececbf",
+                  "name": "permissions",
+                  "_type": "UMLTag",
+                  "ownedElements": [],
+                  "_parent": {
+                    "$ref": "a15320b4-afff-4e9f-9481-32273d2a8c2b"
+                  },
+                  "stereotypes": [],
+                  "tags": [],
+                  "comment": "",
+                  "visibility": "public",
+                  "value": "own,read,write,del"
+                }
+              ],
+              "_parent": {
+                "$ref": "84171366-9e76-4846-8594-30229110910a"
+              },
+              "stereotypes": [],
+              "tags": [],
+              "comment": "",
+              "visibility": "public"
+            }
+          ],
+          "_parent": {
+            "$ref": "8d6958cf-e7a6-4ff0-9848-13482f6c2d42"
+          },
+          "stereotypes": [],
+          "tags": [],
+          "comment": "",
+          "visibility": "public"
+        }
+      ],
+      "stereotypes": [],
+      "tags": [],
+      "comment": "",
+      "visibility": "public"
+    }
+  ]
+}
